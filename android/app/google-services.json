@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "159943127152",
+    "project_id": "epredict-50546",
+    "storage_bucket": "epredict-50546.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159943127152:android:6538f8b7cdf843f1c644b5",
+        "android_client_info": {
+          "package_name": "com.epredict"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "159943127152-r9d47ap22ocu56cvt7qbu1k509na62if.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredict",
+            "certificate_hash": "2d5d6a8bdb925236a0970ff4add06b5323b108c9"
+          }
+        },
+        {
+          "client_id": "159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATYQnKwumETlPe8tDrv2Hk-zOIamOJbss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

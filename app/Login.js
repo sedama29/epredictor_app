@@ -1,40 +1,52 @@
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import { getApps, initializeApp } from '@react-native-firebase/app';
+import firebase from '@react-native-firebase/app';  
 
-// Firebase modular API
-if (getApps().length === 0) {
-  initializeApp();
+// ✅ Just check but do NOT call initializeApp manually
+if (!firebase.apps.length) {
+  console.error('❌ Firebase app is not initialized correctly.');
+  Alert.alert('Network Error', 'Please restart the app and try again.');
 }
 
-// Google Sign-In Configuration
 GoogleSignin.configure({
-  webClientId: '573085708711-lrb1ouvpbo1r62t9abjjnaso479978f0.apps.googleusercontent.com', // Replace with real client ID
+  webClientId: '159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com',
   offlineAccess: true,
   forceCodeForRefreshToken: true,
 });
 
-// Safe alert helper
-const safeAlert = (title, message) => {
-  if (Platform.OS === 'android') {
-    setTimeout(() => Alert.alert(title, message), 100); // delay ensures activity is attached
-  } else {
-    Alert.alert(title, message);
-  }
-};
-
-// Sign-in function
 export const SignInWithGoogle = async () => {
   try {
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    const { idToken } = await GoogleSignin.signIn();
+
+    const result = await GoogleSignin.signIn();
+
+    const { idToken, user } = result.data;
+  
+    const email = user.email.toLowerCase(); // Normalize to lowercase
+
+    console.log('User email:', email);
+
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    await auth().signInWithCredential(googleCredential);
-    console.log('✅ Sign-in successful');
+
+    // Replace '.' with ',' to use the email as a Firebase key
+    const emailKey = email.replace('.', ',');
+    const emailRef = database().ref('/emails/' + emailKey);
+    const snapshot = await emailRef.once('value');
+
+    if (snapshot.exists()) {
+      console.log(`Email ${email} already exists in the database.`);
+      await auth().signInWithCredential(googleCredential);
+      await GoogleSignin.revokeAccess();
+      return true;
+    } else {
+      Alert.alert('Sorry, it looks like your email is not registered with us.');
+      return false;
+    }
   } catch (error) {
-    console.error('❌ Sign-in error:', error.code, error.message);
+    Alert.alert('An error occurred during sign-in. Please try again.');
+    console.error('Error during sign-in:', error.message, error.stack);
+    return false;
   }
 };
-

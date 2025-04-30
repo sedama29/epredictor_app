@@ -15,9 +15,7 @@ import MapImage5 from '../assets/images/map_images/CAM.jpg';
 const initialLayout = { width: Dimensions.get('window').width };
 import RNPickerSelect from 'react-native-picker-select';
 import { Alert } from 'react-native'; // Import the Alert component
-import { PinchGestureHandler } from 'react-native-gesture-handler';
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-
+import { Zoomable } from '@likashefqet/react-native-image-zoom';
 
 const Home = () => {
   const [siteOptionsV2, setSiteOptions] = useState([]);
@@ -35,22 +33,7 @@ const Home = () => {
   const [isPickerModalVisible, setPickerModalVisible] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
   const [delayedData, setDelayedData] = useState([]);
-  const scale = useSharedValue(1);
 
-  const pinchHandler = useAnimatedGestureHandler({
-    onActive: (event) => {
-      scale.value = event.scale;
-    },
-    onEnd: () => {
-      scale.value = 1;
-    },
-  });
-  
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
 
   const renderPickerItem = ({ item }) => (
     <TouchableOpacity
@@ -488,25 +471,18 @@ useEffect(() => {
             </SafeAreaView>
           </TouchableOpacity>
         </SafeAreaView>
-        {/* <TouchableOpacity onPress={() => setImageModalVisible(true)} style={styles.dotsButtonBackground}>
+        <TouchableOpacity onPress={() => setImageModalVisible(true)} style={styles.dotsButtonBackground}>
           <ImageBackground
             source={require('../assets/images/map_images/bg.jpg')}
             style={{ width: '130%', height: '100%' }} 
           >
           </ImageBackground>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
       </SafeAreaView>
+
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Enterococcus Counts</Text>
-
-      <SafeAreaView style={{ height: 400, marginVertical: 20 }}>
-        <PinchGestureHandler onGestureEvent={pinchHandler}>
-          <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-            {selectedSite && <GraphView siteId={selectedSite} />}
-          </Animated.View>
-        </PinchGestureHandler>
-      </SafeAreaView>
-
+      {selectedSite && <GraphView siteId={selectedSite} />}
 
 
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Data</Text>
@@ -552,7 +528,7 @@ useEffect(() => {
         <SafeAreaView style={styles.modalView_2}>
           <TouchableOpacity onPress={handleMapPress} style={{ width: '10%', height: '50%', justifyContent: 'center', alignItems: 'center' }}>
             <Image
-              source={require('../assets/images/map_images/map_main.jpg')}
+              source={require('../assets/images/map_images/map_3.png')}
               resizeMode="contain"
             />
           </TouchableOpacity>
