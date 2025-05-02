@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, View } from 'react-native';
 import axios from 'axios';
 import { styles } from './style/style_home';
 import Data90DaysView from './data/Data90DaysView';
@@ -16,7 +16,11 @@ const initialLayout = { width: Dimensions.get('window').width };
 import RNPickerSelect from 'react-native-picker-select';
 import { Alert } from 'react-native'; // Import the Alert component
 import { Zoomable } from '@likashefqet/react-native-image-zoom';
-
+import ImageZoom from 'react-native-image-pan-zoom';
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
+const originalImageWidth = 1228; // replace with actual width
+const originalImageHeight = 1157; // replace with actual height
 const Home = () => {
   const [siteOptionsV2, setSiteOptions] = useState([]);
   const [selectedSite, setSelectedSite] = useState();
@@ -33,7 +37,20 @@ const Home = () => {
   const [isPickerModalVisible, setPickerModalVisible] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
   const [delayedData, setDelayedData] = useState([]);
-
+  const zoomRef = useRef(null); // <-- Add this at the top inside your Home component
+  const openMap = (mapId) => {
+    if (mapId === 1) {
+      console.log("Clicked Region 1");
+      setCurrentMap(require('../assets/images/map_images/map_bottom.png'));
+    } else if (mapId === 2) {
+      console.log("Clicked Region 2");
+      setCurrentMap(require('../assets/images/map_images/map_bottom_2.png'));
+    } else if (mapId === 3) {
+      console.log("Clicked Region 3");
+      setCurrentMap(require('../assets/images/map_images/map_top_3.png'));
+    }
+  };
+  
 
   const renderPickerItem = ({ item }) => (
     <TouchableOpacity
@@ -98,6 +115,44 @@ const Home = () => {
       { x: [185, 205], y: [200, 220], site: 'CAM010' },
     ],
   };
+
+  const zoomBtn = {
+    color: 'white',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 8,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    fontWeight: 'bold',
+  };
+  
+  const zoomToCorner = (corner) => {
+    const imageWidth = screenWidth * 0.9;
+    const imageHeight = screenHeight * 0.75;
+  
+    let x = 0, y = 0;
+  
+    if (corner === 'top-left') {
+      x = -imageWidth / 2;
+      y = -imageHeight / 2;
+    } else if (corner === 'top-right') {
+      x = imageWidth / 2;
+      y = -imageHeight / 2;
+    } else if (corner === 'bottom-left') {
+      x = -imageWidth / 2;
+      y = imageHeight / 2;
+    } else if (corner === 'bottom-right') {
+      x = imageWidth / 2;
+      y = imageHeight / 2;
+    }
+  
+    zoomRef.current?.centerOn({
+      x,
+      y,
+      scale: 2.5, // You can adjust the zoom level here
+      duration: 300,
+    });
+  };
+  
 
   const handleCamPress = (evt) => {
     const { locationX, locationY } = evt.nativeEvent;
@@ -518,25 +573,87 @@ useEffect(() => {
           {selectedSite && <ContactDetailsView details={contactDetailsV3[selectedSite]} />}
         </ScrollView>
       </SafeAreaView>
-
       <Modal
         animationType="slide"
         transparent={true}
         visible={isImageModalVisible}
         onRequestClose={() => setImageModalVisible(false)}
       >
-        <SafeAreaView style={styles.modalView_2}>
-          <TouchableOpacity onPress={handleMapPress} style={{ width: '10%', height: '50%', justifyContent: 'center', alignItems: 'center' }}>
+        <SafeAreaView
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              width: screenWidth * 0.9,
+              height: screenHeight * 0.75,
+              position: 'relative',
+              marginBottom: 200,
+            }}
+          >
             <Image
-              source={require('../assets/images/map_images/map_3.png')}
+              source={require('../assets/images/map_images/map_5.png')}
+              style={{ width: '100%', height: '100%' }}
               resizeMode="contain"
             />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setImageModalVisible(false)} style={styles.closeButton_image}>
-            <Text>Close</Text>
-          </TouchableOpacity>
+            {/* Region 1 */}
+            <TouchableOpacity
+              onPress={() => openMap(1)}
+              style={{
+                position: 'absolute',
+                left: 328 * (screenWidth * 0.9 / originalImageWidth),
+                top: 890 * (screenHeight * 0.75 / originalImageHeight),
+                width: (600 - 328) * (screenWidth * 0.9 / originalImageWidth),
+                height: (1110 - 890) * (screenHeight * 0.75 / originalImageHeight),
+              }}
+            />
+
+            {/* Region 2 */}
+            <TouchableOpacity
+              onPress={() => openMap(2)}
+              style={{
+                position: 'absolute',
+                left: 276 * (screenWidth * 0.9 / originalImageWidth),
+                top: 673 * (screenHeight * 0.75 / originalImageHeight),
+                width: (421 - 276) * (screenWidth * 0.9 / originalImageWidth),
+                height: (754 - 673) * (screenHeight * 0.75 / originalImageHeight),
+              }}
+            />
+
+            {/* Region 3 */}
+            <TouchableOpacity
+              onPress={() => openMap(3)}
+              style={{
+                position: 'absolute',
+                left: 364 * (screenWidth * 0.9 / originalImageWidth),
+                top: 484 * (screenHeight * 0.75 / originalImageHeight),
+                width: (588 - 364) * (screenWidth * 0.9 / originalImageWidth),
+                height: (675 - 484) * (screenHeight * 0.75 / originalImageHeight),
+              }}
+            />
+
+            {/* Close button */}
+            <TouchableOpacity
+              onPress={() => setImageModalVisible(false)}
+              style={{
+                alignSelf: 'center',
+                marginTop: 50,
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                paddingVertical: 8,
+                paddingHorizontal: 20,
+                borderRadius: 5,
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </SafeAreaView>
       </Modal>
+
 
 
       <Modal
