@@ -2,38 +2,20 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import FirebaseCore  // 👈 IMPORTANT: Import this!
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-  var window: UIWindow?
+class AppDelegate: RCTAppDelegate {
+  override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()  // 👈 IMPORTANT: Initialize Firebase here
 
-  var reactNativeDelegate: ReactNativeDelegate?
-  var reactNativeFactory: RCTReactNativeFactory?
+    self.moduleName = "epredict"
+    self.dependencyProvider = RCTAppDependencyProvider()
+    self.initialProps = [:]
 
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-  ) -> Bool {
-    let delegate = ReactNativeDelegate()
-    let factory = RCTReactNativeFactory(delegate: delegate)
-    delegate.dependencyProvider = RCTAppDependencyProvider()
-
-    reactNativeDelegate = delegate
-    reactNativeFactory = factory
-
-    window = UIWindow(frame: UIScreen.main.bounds)
-
-    factory.startReactNative(
-      withModuleName: "epredict",
-      in: window,
-      launchOptions: launchOptions
-    )
-
-    return true
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-}
 
-class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
   }
