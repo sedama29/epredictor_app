@@ -93,8 +93,9 @@ const GraphView = ({ siteId }) => {
       const filteredData = parsedData.filter(d => d.date && Object.keys(d).some(k => k !== 'date' && !isNaN(d[k])));
       const allDates = filteredData.map(d => d.date).filter(Boolean);
 
-      const minDate = d3.min(allDates);
-      const maxDate = new Date(d3.max(allDates).getTime());
+      const minDate = d3.min(allDates) || new Date();
+      const maxDate = d3.max(allDates) ? new Date(d3.max(allDates)) : new Date();
+
       setStartDate(minDate);
       setEndDate(maxDate);
 

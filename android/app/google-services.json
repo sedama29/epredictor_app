@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "159943127152",
+    "firebase_url": "https://epredict-50546-default-rtdb.firebaseio.com",
     "project_id": "epredict-50546",
     "storage_bucket": "epredict-50546.firebasestorage.app"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "159943127152-olaov2r902jusqroen1vt2uaaahndnta.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredict",
+            "certificate_hash": "7a5112ac7c5813823bb9c2eb0a3db51d5a325abe"
+          }
+        },
         {
           "client_id": "159943127152-r9d47ap22ocu56cvt7qbu1k509na62if.apps.googleusercontent.com",
           "client_type": 1,

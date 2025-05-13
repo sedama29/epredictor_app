@@ -1,52 +1,86 @@
 import { Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import auth from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
-import firebase from '@react-native-firebase/app';  
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  GoogleAuthProvider,
+  signInWithCredential
+} from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import firebaseConfig from './firebaseConfig'; // 🔁 your firebase config
 
-// ✅ Just check but do NOT call initializeApp manually
-if (!firebase.apps.length) {
-  console.error('❌ Firebase app is not initialized correctly.');
-  Alert.alert('Network Error', 'Please restart the app and try again.');
-}
+// ✅ Initialize Firebase App (singleton)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+// ✅ Set up Auth with AsyncStorage persistence
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
+// ✅ Set up Realtime Database
+const database = getDatabase(app);
+
+// ✅ Configure Google Sign-In
 GoogleSignin.configure({
-  webClientId: '159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com',
+  webClientId: '159943127152-k6t7v7u50u9upu0a9f1v9pm0k0os48pr.apps.googleusercontent.com',
   offlineAccess: true,
   forceCodeForRefreshToken: true,
 });
 
 export const SignInWithGoogle = async () => {
   try {
+    // ✅ Ensure Google Play Services
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-    const result = await GoogleSignin.signIn();
+    // ✅ Begin Sign-In
+    const userInfo = await GoogleSignin.signIn();
 
-    const { idToken, user } = result.data;
-  
-    const email = user.email.toLowerCase(); // Normalize to lowercase
+    if (
+      !userInfo ||
+      typeof userInfo !== 'object' ||
+      !userInfo.data ||
+      !userInfo.data.user
+    ) {
+      throw new Error('Google sign-in returned invalid user info');
+    }
 
-    console.log('User email:', email);
+    const { idToken, user } = userInfo.data;
 
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    if (!idToken) {
+      throw new Error('Missing idToken from Google sign-in');
+    }
 
-    // Replace '.' with ',' to use the email as a Firebase key
-    const emailKey = email.replace('.', ',');
-    const emailRef = database().ref('/emails/' + emailKey);
-    const snapshot = await emailRef.once('value');
+    if (!user || !user.email) {
+      throw new Error('Missing user email in Google sign-in');
+    }
 
-    if (snapshot.exists()) {
-      console.log(`Email ${email} already exists in the database.`);
-      await auth().signInWithCredential(googleCredential);
-      await GoogleSignin.revokeAccess();
-      return true;
-    } else {
-      Alert.alert('Sorry, it looks like your email is not registered with us.');
+    const email = user.email.toLowerCase();
+
+    // ✅ Firebase Credential
+    const credential = GoogleAuthProvider.credential(idToken);
+
+    // ✅ Check DB for email access
+    const emailKey = email.replace(/\./g, ',');
+    const emailRef = ref(database, `/emails/${emailKey}`);
+    const snapshot = await get(emailRef);
+
+    if (!snapshot.exists()) {
+      Alert.alert('Access Denied', 'Sorry, your email is not registered with us.');
       return false;
     }
+
+    // ✅ Sign in to Firebase
+    await signInWithCredential(auth, credential);
+
+    // ✅ Optional cleanup
+    await GoogleSignin.revokeAccess();
+
+    return true;
   } catch (error) {
-    Alert.alert('An error occurred during sign-in. Please try again.');
-    console.error('Error during sign-in:', error.message, error.stack);
+    console.error('❌ Sign-in error:', error.message, error);
+    Alert.alert('Sign-In Failed', error.message || 'An unexpected error occurred.');
     return false;
   }
 };

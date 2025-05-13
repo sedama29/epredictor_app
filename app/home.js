@@ -530,7 +530,7 @@ const map_tree = {
     back: 'map_L3_P3_P3',
     children: [
       { area: { x: [117, 166], y: [176, 286] }, key: 'map_L5_P3_P3_P1_P1' },
-      { area: { x: [183, 236], y: [64, 183] }, key: 'map_L5_P3_P3_P1_P2' }
+        { area: { x: [122, 252], y: [65, 194] }, key: 'map_L5_P3_P3_P1_P2' }
     ]
   },
   
@@ -1285,11 +1285,9 @@ map_L4_P5_P4_P1: {
   const getPreviousMap = (currentKey) => map_tree[currentKey]?.back || null;
 
   const handleMapNavigation = ({ x, y, currentMapKey, setSelectedImage, setCurrentMapKey, setImageModalVisible, setCamModalVisible }) => {
-    console.log(`🗺️ handleMapNavigation: clicked at x=${x}, y=${y}, current=${currentMapKey}`);
 
     const nextKey = findNextMap(currentMapKey, x, y);
     if (nextKey) {
-      console.log(`➡️ Navigating to: ${nextKey}`);
 
       setSelectedImage(map_tree[nextKey].image);
       setCurrentMapKey(nextKey);
@@ -1325,58 +1323,9 @@ map_L4_P5_P4_P1: {
     });
   }, [currentMapKey, setSelectedImage, setCurrentMapKey, setImageModalVisible, setCamModalVisible]);
   
-  // const handleCamPress = (evt) => {
-  //   const { locationX, locationY } = evt.nativeEvent;
-  //   console.log(`📌 handleCamPress: x=${locationX}, y=${locationY}`);
-  
-  //   const imageKey = getImageNameKey(selectedImage);
-  //   const touchKey = imageKeyToTouchKey[imageKey];
-  //   const touchAreas = specificTouchAreas[touchKey];
-  
-  //   console.log(`🔍 Selected Image Key: ${touchKey}`);
-  //   console.log('Touch Areas:', touchAreas);
-  
-  //   // 1. Site selection
-  //   if (touchAreas) {
-  //     for (const area of touchAreas) {
-  //       if (
-  //         locationX >= area.x[0] && locationX <= area.x[1] &&
-  //         locationY >= area.y[0] && locationY <= area.y[1]
-  //       ) {
-  //         setSelectedSite(area.site);
-  //         setCamModalVisible(false);
-  //         return;
-  //       }
-  //     }
-  //   }
-  
-  //   // 2. Navigate deeper
-  //   const nextKey = findNextMap(imageKey, locationX, locationY);
-  //   if (nextKey) {
-  //     setSelectedImage(map_tree[nextKey].image);
-  //     setCurrentMapKey(nextKey);
-  //     return;
-  //   }
-  
-  //   // 3. Navigate back ONLY IF inside the specific back area
-  //   const inBackArea =
-  //     locationX >= 285 && locationX <= 345 &&
-  //     locationY >= 285 && locationY <= 345;
-  
-  //   if (inBackArea) {
-  //     handleBackToParentMap({
-  //       currentMapKey,
-  //       setSelectedImage,
-  //       setCurrentMapKey,
-  //       setCamModalVisible,
-  //       setImageModalVisible
-  //     });
-  //   }
-  // };
   
   const handleCamPress = (evt) => {
     const { locationX, locationY } = evt.nativeEvent;
-    console.log(`📌 handleCamPress: x=${locationX}, y=${locationY}`);
   
     const currentKey = getImageNameKey(selectedImage);
     const node = map_tree[currentKey];
@@ -1387,11 +1336,9 @@ map_L4_P5_P4_P1: {
       const [y1, y2] = area.area.y;
       if (locationX >= x1 && locationX <= x2 && locationY >= y1 && locationY <= y2) {
         if (area.isSite) {
-          console.log(`✅ Site selected: ${area.key}`);
           setSelectedSite(area.key);
           setCamModalVisible(false);
         } else if (map_tree[area.key]) {
-          console.log(`➡️ Navigating to sub-map: ${area.key}`);
           setSelectedImage(map_tree[area.key].image);
           setCurrentMapKey(area.key);
         }
@@ -1596,14 +1543,12 @@ useEffect(() => {
 
 
     const checkAndFetchData = async (url, storageKey, setDataFunction, postProcess) => {
-      console.log('✅ useEffect: Checking cached data vs today');
 
       const lastFetchDate = await AsyncStorage.getItem(`lastFetchDate-${storageKey}`);
       const today = new Date().toISOString().split('T')[0];
     
       let data;
       if (lastFetchDate !== today) {
-        console.log('🔄 Fetching fresh data...');
         try {
           const response = await axios.get(url);
           let content = response.data;
@@ -1627,7 +1572,6 @@ useEffect(() => {
           }
         }
       } else {
-        console.log('📦 Using cached data from AsyncStorage');
 
         const storedData = await AsyncStorage.getItem(storageKey);
         if (storedData) {

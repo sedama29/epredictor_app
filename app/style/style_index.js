@@ -50,6 +50,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+
+  agreementContainer: {
+    marginHorizontal: 30,
+    alignItems: 'center',
+  },
+
   
   dotsButton: {
     width: 30,   // Specify the width
