@@ -29,7 +29,7 @@ function LoginPage() {
     try {
       const signInSuccess = await SignInWithGoogle();
       if (signInSuccess) {
-        navigation.navigate('DrawerNavigator');
+        navigation.replace('DrawerNavigator');
       }
     } catch (error) {
       console.error('❌ Sign-in failed:', error);
