@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, Image } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions,  TouchableWithoutFeedback, Image } from 'react-native';
 import axios from 'axios';
 import * as d3 from 'd3';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,7 +25,15 @@ const GraphView = ({ siteId }) => {
   useEffect(() => {
   }, [tooltipPos]);
   
-  const screenWidth = 450;
+    const windowWidth = Dimensions.get('window').width;
+    const minWidth = windowWidth; // make sure it fills at least the screen
+    const numDays = (endDate - startDate) / (1000 * 60 * 60 * 24); // number of days
+
+    // Adjust widthPerDay to be responsive
+    const widthPerDay = windowWidth < 400 ? 25 : windowWidth < 600 ? 20 : 15;
+
+    const screenWidth = Math.max(minWidth, numDays * widthPerDay);
+
   const screenHeight = 400;
   const formatDate = d3.timeFormat("%d %b");
   const formatDateFull = d3.timeFormat("%Y-%m-%d %H:%M:%S");
@@ -75,7 +83,7 @@ const GraphView = ({ siteId }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`https://enterococcus.today/waf/TX/others/eCount_stat_app/${siteId}.csv?ts=${new Date().getTime()}`);
+      const response = await axios.get(`https://enterococcus.today/waf_2/app/TX/eCount_stat_app/${siteId}.csv?ts=${new Date().getTime()}`);
       const parseDate = d3.timeParse("%Y-%m-%d");
       const parsedData = d3.csvParse(response.data, (row) => {
         const newRow = { date: parseDate(row.date) };

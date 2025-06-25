@@ -20,28 +20,20 @@ export const styles = StyleSheet.create({
   dropdownContainer: {
     backgroundColor: 'white',
     borderRadius: 5,
-    borderColor: 'black', 
-    borderWidth: 1, 
+    borderColor: 'black',
+    borderWidth: 1,
     paddingVertical: 10,
-    elevation: 3,
-    overflow: 'hidden',
-    marginTop: '18%',
-    marginLeft:'2%', 
-    paddingHorizontal: 15,
-    ...Platform.select({
-      ios: {
-        maxHeight: '80%',
-        width: '68%',
-        alignSelf: 'left',
-        marginTop: '25%'
-      },
-      android: {
-        maxHeight: '80%',
-        width: '68%',
-        alignSelf: 'left',
-      },
-    }),
+    paddingHorizontal: 10,
+    elevation: 5,
+    zIndex: 999,
+    maxHeight: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
+
+
   picker: {
     width: '100%',
     color: 'blue',

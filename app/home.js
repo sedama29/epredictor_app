@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, View } from 'react-native';
+import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, StyleSheet, View } from 'react-native';
 import axios from 'axios';
 import { styles } from './style/style_home';
 import Data90DaysView from './data/Data90DaysView';
@@ -151,6 +151,15 @@ const Home = () => {
     }
   }, [isImageModalVisible]);
   
+  const pickerRef = useRef(null);
+
+  const openDropdown = () => {
+    pickerRef.current?.measureInWindow((x, y, width, height) => {
+      setButtonLayout({ x, y, width, height });
+      setPickerModalVisible(true);
+    });
+  };
+
 
   const renderPickerItem = ({ item }) => (
     <TouchableOpacity
@@ -1409,9 +1418,9 @@ map_L4_P5_P4_P1: {
 
   const fetchData = async () => {
     try {
-      const observed = await fetchCSVData('https://enterococcus.today/waf/TX/others/observed.csv');
-      const predicted = await fetchCSVData('https://enterococcus.today/waf/TX/others/predicted.csv');
-      const delayed = await fetchCSVData('https://enterococcus.today/waf/TX/others/delayed_data.csv');
+      const observed = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/observed.csv');
+      const predicted = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/predicted.csv');
+      const delayed = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/delayed_data.csv');
   
       setObservedData(observed);
       setPredictedData(predicted);
@@ -1603,15 +1612,15 @@ useEffect(() => {
     
     
 
-    checkAndFetchData('https://enterococcus.today/waf/TX/others/stations_3.txt', 'siteOptionsV2', setSiteOptions, processSiteOptions);
-    checkAndFetchData('https://enterococcus.today/waf/TX/others/beach_lat_lon.txt', 'coordsDictV2', setCoordsDict);
-    checkAndFetchData('https://enterococcus.today/waf/TX/others/contact_details_2.json', 'contactDetailsV3', setContactDetails);
+    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/stations_3.txt', 'siteOptionsV2', setSiteOptions, processSiteOptions);
+    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/beach_lat_lon.txt', 'coordsDictV2', setCoordsDict);
+    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/contact_details_2.json', 'contactDetailsV3', setContactDetails);
 
   }, []);
 
   useEffect(() => {
     if (selectedSite) {
-      const imageSrc = `https://enterococcus.today/waf/TX/others/beach_images_2/${selectedSite}.jpg`;
+      const imageSrc = `https://enterococcus.today/waf_2/app/TX/beach_images_2/${selectedSite}.jpg`;
       setImageUrl(imageSrc);
     }
   }, [selectedSite]);
@@ -1644,54 +1653,60 @@ useEffect(() => {
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
-
-
-      {buttonLayout && (
-        <Modal
-          visible={isPickerModalVisible}
-          onRequestClose={() => setPickerModalVisible(false)}
-          transparent={true}
-          animationType="fade"
-        >
-          <SafeAreaView style={[styles.modalContainer, {
-            top: buttonLayout.y + buttonLayout.height,
-          }]}>
+        {buttonLayout && (
+          <Modal
+            visible={isPickerModalVisible}
+            onRequestClose={() => setPickerModalVisible(false)}
+            transparent={true}
+            animationType="fade"
+          >
             <TouchableOpacity
-              style={styles.modalContainer}
+              style={StyleSheet.absoluteFill}
               activeOpacity={1}
               onPressOut={() => setPickerModalVisible(false)}
             >
-              <SafeAreaView style={styles.dropdownContainer} onStartShouldSetResponder={() => true}>
+              <View
+                style={[
+                  styles.dropdownContainer,
+                  {
+                    position: 'absolute',
+                    top: buttonLayout.y + buttonLayout.height  + 8,
+                    left: buttonLayout.x,
+                    width: buttonLayout.width,
+                  },
+                ]}
+                onStartShouldSetResponder={() => true}
+              >
                 <FlatList
                   data={siteOptionsV2}
                   renderItem={renderPickerItem}
                   keyExtractor={(item, index) => index.toString()}
-                  style={styles.dropdownList}
                 />
-              </SafeAreaView>
+              </View>
             </TouchableOpacity>
-          </SafeAreaView>
-        </Modal>
-      )}
+          </Modal>
+        )}
+
+
 
 
 
       <SafeAreaView style={styles.pickerAndDotsContainer}>
         <SafeAreaView style={styles.pickerContainer}>
           <TouchableOpacity
-            onPress={() => setPickerModalVisible(true)}
-            onLayout={(event) => {
-              const layout = event.nativeEvent.layout;
-              setButtonLayout(layout);
-            }}
+            ref={pickerRef}
+            onPress={openDropdown}
             style={styles.pickerButton}
           >
-            <SafeAreaView style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text style={{ color: 'blue', padding: 5 }}>
-                {selectedSite ? siteOptionsV2.find(item => item.match(/\(([^)]+)\)/)?.[1] === selectedSite) : 'Select Site'}
+                {selectedSite
+                  ? siteOptionsV2.find(item => item.match(/\(([^)]+)\)/)?.[1] === selectedSite)
+                  : 'Select Site'}
               </Text>
-            </SafeAreaView>
+            </View>
           </TouchableOpacity>
+
         </SafeAreaView>
         <TouchableOpacity onPress={() => setImageModalVisible(true)} style={styles.dotsButtonBackground}>
           <ImageBackground
