@@ -79,9 +79,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.epredict"
+    namespace "com.epredictor.ml"
     defaultConfig {
-        applicationId "com.epredict"
+        applicationId "com.epredictor.ml"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "159943127152-g6hqv5n5vr9v93ki1i6srm1n4fqi23e8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredict",
+            "certificate_hash": "a40b1a84889f5c9cd7fcda009b7f3308e54dc8c4"
+          }
+        },
+        {
           "client_id": "159943127152-olaov2r902jusqroen1vt2uaaahndnta.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -46,6 +54,73 @@
             {
               "client_id": "159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "159943127152-8b6pq5gdp80eujpt4a3pfp5og54ahl3b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.epredict"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159943127152:android:b96e740fc444a617c644b5",
+        "android_client_info": {
+          "package_name": "com.epredictor.ml"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "159943127152-0k878drq017u81d9c87fch0hvcj3neii.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredictor.ml",
+            "certificate_hash": "2d5d6a8bdb925236a0970ff4add06b5323b108c9"
+          }
+        },
+        {
+          "client_id": "159943127152-196jeidkh6jjtjr5va7f422larrds7fg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredictor.ml",
+            "certificate_hash": "a40b1a84889f5c9cd7fcda009b7f3308e54dc8c4"
+          }
+        },
+        {
+          "client_id": "159943127152-idku2dotdc3qhclb7a70hi8321sfibps.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.epredictor.ml",
+            "certificate_hash": "7a5112ac7c5813823bb9c2eb0a3db51d5a325abe"
+          }
+        },
+        {
+          "client_id": "159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATYQnKwumETlPe8tDrv2Hk-zOIamOJbss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "159943127152-h0kk6a0dt7ivc99qeifhjfk427lpg34c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "159943127152-8b6pq5gdp80eujpt4a3pfp5og54ahl3b.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.epredict"
+              }
             }
           ]
         }

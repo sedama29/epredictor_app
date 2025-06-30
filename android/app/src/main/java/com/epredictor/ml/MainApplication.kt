@@ -1,4 +1,4 @@
-package com.epredict
+package com.epredictor.ml
 
 import android.app.Application
 import com.facebook.react.PackageList
