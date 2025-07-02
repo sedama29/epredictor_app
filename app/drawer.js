@@ -10,15 +10,18 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   return (
-    <Drawer.Navigator
-      screenOptions={({ route }) => ({
-        header: ({ scene }) => (
-          <View style={{ paddingTop: Platform.OS === 'ios' ? 20 : 0 }}>
-            <CustomHeader title={route.name} showHeader={scene?.route?.name !== 'Home'} />
-          </View>
-        ),
-      })}
-    >
+      <Drawer.Navigator
+        screenOptions={({ route, navigation }) => ({
+          header: () => (
+            <CustomHeader
+              title={route.name}
+              showHeader={true}
+              onOpenDrawer={() => navigation.openDrawer()} // ✅ pass it
+            />
+          ),
+        })}
+      >
+
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="About..." component={About} />
       <Drawer.Screen name="Texas General Land Office" component={Tglo} />

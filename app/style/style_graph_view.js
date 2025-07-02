@@ -84,12 +84,62 @@ export const styles = StyleSheet.create({
       color: 'black', 
       fontSize: 10,// Default text color
     },
-
-    dotsButtonBackground: {
-      width: 15,
-      height: 50,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: 10,
+        dotsButtonBackground: {
+          width: 15,
+          height: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginLeft: 10,
+        },
+        zoomButton: {
+        backgroundColor: '#fff',
+        padding: 10,
+        marginLeft: 10,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 0.3,
+        shadowRadius: 2,
+      },
+      zoomText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
+      bottomLegendContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        paddingHorizontal: 10,
+        paddingBottom: 12,
+        marginTop: 10,
+      },
+      legendPill: {
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 20,
+        margin: 5,
+      },
+      legendPillText: {
+        color: 'white',
+        fontSize: 12,
+      },
+    legendTitle: {
+      textAlign: 'center',
+      fontWeight: 'bold',
+      fontSize: 14,
+      marginTop: 10,
+      marginBottom: 4,
+      color: '#333',
     },
+
+    // dotsButtonBackground: {
+    //   width: 15,
+    //   height: 50,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    //   marginLeft: 10,
+    // },
   });

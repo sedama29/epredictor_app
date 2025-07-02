@@ -91,7 +91,7 @@ const Data90DaysView = ({ siteId }) => {
 
     return (
         <View>
-            <Text style={{ fontWeight: 'bold', fontSize: 11 }}>Last 90 days </Text>
+            {/* <Text style={{ fontWeight: 'bold', fontSize: 11 }}>Last 90 days </Text> */}
             <Text style={styles.descriptionText}>
                 For more detailed information and to download the data, visit {' '}
                 <Text style={styles.linkText} onPress={handleLinkPress}>

@@ -36,6 +36,7 @@ function LoginPage() {
     }
   };
 
+
   return (
     <SafeAreaView style={[styles.container]}>
       <Image

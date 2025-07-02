@@ -7,6 +7,7 @@ import ContactDetailsView from './data/ContactDetailsView';
 import GraphView from './Graph/GraphView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TabView, SceneMap } from 'react-native-tab-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Map_L1 from '../assets/map_images/map_L1.png';
 import Map_L2_P1 from '../assets/map_images/map_L2-P1.png';
@@ -143,6 +144,7 @@ const Home = () => {
   const [buttonLayout, setButtonLayout] = useState(null);
   const [delayedData, setDelayedData] = useState([]);
   const [currentMapKey, setCurrentMapKey] = useState('map_L1'); // Track map level
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (isImageModalVisible) {
@@ -199,14 +201,24 @@ const map_tree = {
     image: Map_L3_P1_P1,
     back: 'map_L2_P1',
     children: [
+      // Existing zones
       { area: { x: [125, 152], y: [309, 336] }, key: 'CAM001', isSite: true },
       { area: { x: [122, 157], y: [257, 291] }, key: 'CAM002', isSite: true },
       { area: { x: [112, 158], y: [204, 245] }, key: 'CAM003', isSite: true },
       { area: { x: [106, 149], y: [160, 191] }, key: 'CAM004', isSite: true },
       { area: { x: [117, 150], y: [109, 143] }, key: 'CAM005', isSite: true },
-      { area: { x: [109, 141], y: [72, 102] }, key: 'CAM006', isSite: true }
+      { area: { x: [109, 141], y: [72, 102] }, key: 'CAM006', isSite: true },
+
+      // New clickable areas parsed from your input
+      { area: { x: [65, 189], y: [52, 78] }, key: 'CAM006', isSite: true },
+      { area: { x: [65, 190], y: [97, 125] }, key: 'CAM005', isSite: true },
+      { area: { x: [67, 196], y: [145, 173] }, key: 'CAM004', isSite: true },
+      { area: { x: [72, 193], y: [191, 216] }, key: 'CAM003', isSite: true },
+      { area: { x: [77, 201], y: [231, 258] }, key: 'CAM002', isSite: true },
+      { area: { x: [78, 202], y: [280, 308] }, key: 'CAM001', isSite: true }
     ]
   },
+
   map_L3_P1_P2: {
     image: Map_L3_P1_P2,
     back: 'map_L2_P1',
@@ -222,58 +234,98 @@ const map_tree = {
     image: Map_L3_P1_P3,
     back: 'map_L2_P1',
     children: [
-      { area: { x: [125, 203], y: [258, 333] },key: 'CAM027', isSite: true },
-      { area: { x: [108, 158], y: [87, 133] }, key: 'CAM028', isSite: true }
+      // Existing areas
+      { area: { x: [125, 203], y: [258, 333] }, key: 'CAM027', isSite: true },
+      { area: { x: [108, 158], y: [87, 133] }, key: 'CAM028', isSite: true },
+
+      // New areas from POINTs
+      { area: { x: [96, 227], y: [271, 301] }, key: 'CAM027', isSite: true },
+      { area: { x: [83, 197], y: [68, 94] }, key: 'CAM028', isSite: true }
     ]
-    
   },
   map_L4_P1_P2_P1: {
     image: Map_L4_P1_P2_P1,
     back: 'map_L3_P1_P2',
     children: [
+      // Original manually set areas
       { area: { x: [102, 138], y: [266, 300] }, key: 'CAM031', isSite: true },
       { area: { x: [167, 206], y: [258, 294] }, key: 'CAM007', isSite: true },
       { area: { x: [151, 184], y: [190, 225] }, key: 'CAM008', isSite: true },
       { area: { x: [135, 179], y: [107, 140] }, key: 'CAM010', isSite: true },
-      { area: { x: [122, 161], y: [43, 76] }, key: 'CAM030', isSite: true }
+      { area: { x: [122, 161], y: [43, 76] }, key: 'CAM030', isSite: true },
+
+      // POINT-based areas
+      { area: { x: [167, 228], y: [239, 265] }, key: 'CAM007', isSite: true },   // POINT1
+      { area: { x: [86, 164],  y: [250, 273] }, key: 'CAM031', isSite: true },   // POINT2
+      { area: { x: [131, 212], y: [176, 200] }, key: 'CAM008', isSite: true },   // POINT3
+      { area: { x: [72, 246],  y: [94, 117] },  key: 'CAM010', isSite: true },   // POINT4
+      { area: { x: [59, 238],  y: [27, 55] },   key: 'CAM030', isSite: true }    // POINT5
     ]
   },
+
   map_L4_P1_P2_P2: {
     image: Map_L4_P1_P2_P2,
     back: 'map_L3_P1_P2',
     children: [
+      // Existing manually set areas
       { area: { x: [130, 170], y: [314, 345] }, key: 'CAM011', isSite: true },
       { area: { x: [122, 160], y: [217, 247] }, key: 'CAM012', isSite: true },
       { area: { x: [114, 150], y: [155, 179] }, key: 'CAM013', isSite: true },
-      { area: { x: [111, 138], y: [61, 90] }, key: 'CAM014', isSite: true }
+      { area: { x: [111, 138], y: [61, 90] }, key: 'CAM014', isSite: true },
+
+      // POINT-based bounding boxes
+      { area: { x: [63, 189], y: [45, 72] },  key: 'CAM014', isSite: true },  // POINT1
+      { area: { x: [77, 191], y: [137, 164] }, key: 'CAM013', isSite: true }, // POINT2
+      { area: { x: [77, 213], y: [202, 232] }, key: 'CAM012', isSite: true }, // POINT3
+      { area: { x: [98, 207], y: [307, 332] }, key: 'CAM011', isSite: true }  // POINT4
     ]
   },
+
   map_L4_P1_P2_P3: {
     image: Map_L4_P1_P2_P3,
     back: 'map_L3_P1_P2',
     children: [
+      // Original manually-defined areas
       { area: { x: [104, 130], y: [289, 324] }, key: 'CAM016', isSite: true },
       { area: { x: [95, 129], y: [230, 264] }, key: 'CAM017', isSite: true },
-      { area: { x: [85, 117], y: [116, 161] }, key: 'CAM019', isSite: true }
+      { area: { x: [85, 117], y: [116, 161] }, key: 'CAM019', isSite: true },
+
+      // POINT-derived clickable areas
+      { area: { x: [40, 170], y: [99, 129] }, key: 'CAM019', isSite: true },  // POINT1
+      { area: { x: [50, 182], y: [216, 242] }, key: 'CAM017', isSite: true }, // POINT2
+      { area: { x: [45, 198], y: [270, 300] }, key: 'CAM016', isSite: true }  // POINT3
     ]
   },
   map_L4_P1_P2_P4: {
     image: Map_L4_P1_P2_P4,
     back: 'map_L3_P1_P2',
     children: [
+      // Original manually defined regions
       { area: { x: [196, 241], y: [274, 308] }, key: 'CAM021', isSite: true },
       { area: { x: [194, 223], y: [213, 253] }, key: 'CAM022', isSite: true },
       { area: { x: [180, 208], y: [127, 166] }, key: 'CAM023', isSite: true },
-      { area: { x: [19, 60], y: [203, 239] }, key: 'CAM029', isSite: true }
+      { area: { x: [19, 60], y: [203, 239] }, key: 'CAM029', isSite: true },
+
+      // POINT-derived clickable areas
+      { area: { x: [0, 86], y: [181, 211] }, key: 'CAM029', isSite: true },   // POINT1
+      { area: { x: [157, 249], y: [104, 133] }, key: 'CAM021', isSite: true }, // POINT2
+      { area: { x: [126, 301], y: [200, 228] }, key: 'CAM022', isSite: true }, // POINT3
+      { area: { x: [127, 304], y: [256, 284] }, key: 'CAM023', isSite: true }  // POINT4
     ]
   },
   map_L4_P1_P2_P5: {
     image: Map_L4_P1_P2_P5,
     back: 'map_L3_P1_P2',
     children: [
-      { area: { x: [92, 146], y: [253, 295] }, key: 'CAM017', isSite: true },
-      { area: { x: [102, 132], y: [131, 175] }, key: 'CAM018', isSite: true },
-      { area: { x: [94, 121], y: [78, 116] }, key: 'CAM019', isSite: true }
+      // Original POINT-based regions
+      { area: { x: [72, 149], y: [55, 86] }, key: 'CAM026', isSite: true },
+      { area: { x: [79, 156], y: [110, 140] }, key: 'CAM025', isSite: true },
+      { area: { x: [77, 173], y: [232, 266] }, key: 'CAM024', isSite: true },
+
+      // Additional inner POINTs
+      { area: { x: [104, 116], y: [90, 106] }, key: 'CAM026', isSite: true },
+      { area: { x: [106, 131], y: [140, 162] }, key: 'CAM025', isSite: true },
+      { area: { x: [110, 142], y: [261, 283] }, key: 'CAM024', isSite: true }
     ]
   },
 
@@ -289,19 +341,28 @@ const map_tree = {
     image: Map_L3_P2_P1,
     back: 'map_L2_P2',
     children: [
-      { area: { x: [124, 177], y: [161, 210] }, key: 'KLE001', isSite: true }
+      // Original area
+      { area: { x: [124, 177], y: [161, 210] }, key: 'KLE001', isSite: true },
+
+      // POINT1 area (from CSV)
+      { area: { x: [98, 205], y: [150, 183] }, key: 'KLE001', isSite: true }
     ]
   },
   map_L3_P2_P2: {
     image: Map_L3_P2_P2,
     back: 'map_L2_P2',
     children: [
+      // Original areas
       { area: { x: [207, 256], y: [227, 264] }, key: 'KLE004', isSite: true },
       { area: { x: [125, 181], y: [178, 223] }, key: 'KLE003', isSite: true },
-      { area: { x: [64, 112], y: [139, 174] }, key: 'KLE002', isSite: true }
+      { area: { x: [64, 112], y: [139, 174] }, key: 'KLE002', isSite: true },
+
+      // POINT-based areas
+      { area: { x: [43, 141], y: [115, 144] }, key: 'KLE002', isSite: true }, // POINT1
+      { area: { x: [105, 203], y: [163, 192] }, key: 'KLE003', isSite: true }, // POINT2
+      { area: { x: [179, 276], y: [209, 240] }, key: 'KLE004', isSite: true }  // POINT3
     ]
   },
-
   map_L2_P3: {
     image: Map_L2_P3,
     back: 'map_L1',
@@ -340,26 +401,43 @@ const map_tree = {
     image: Map_L5_P3_P1_P1_P1,
     back: 'map_L4_P3_P1_P1',
     children: [
+      // Existing
       { area: { x: [70, 127], y: [318, 347] }, key: 'NUE024', isSite: true },
       { area: { x: [96, 142], y: [240, 278] }, key: 'NUE023', isSite: true },
       { area: { x: [120, 180], y: [155, 196] }, key: 'NUE022', isSite: true },
-      { area: { x: [152, 196], y: [55, 93] }, key: 'NUE021', isSite: true }
+      { area: { x: [152, 196], y: [55, 93] }, key: 'NUE021', isSite: true },
+
+      // Added from POINTS
+      { area: { x: [119, 225], y: [35, 68] }, key: 'NUE021', isSite: true },  // POINT1
+      { area: { x: [89, 197], y: [137, 168] }, key: 'NUE022', isSite: true }, // POINT2
+      { area: { x: [60, 171], y: [224, 255] }, key: 'NUE023', isSite: true }, // POINT3
+      { area: { x: [43, 149], y: [302, 332] }, key: 'NUE024', isSite: true }  // POINT4
     ]
   },
   map_L5_P3_P1_P1_P2: {
     image: Map_L5_P3_P1_P1_P2,
     back: 'map_L4_P3_P1_P1',
     children: [
+      // Existing
       { area: { x: [85, 137], y: [231, 271] }, key: 'NUE020', isSite: true },
-      { area: { x: [119, 192], y: [130, 174] }, key: 'NUE019', isSite: true }
+      { area: { x: [119, 192], y: [130, 174] }, key: 'NUE019', isSite: true },
+
+      // Added from POINTS
+      { area: { x: [57, 164], y: [218, 251] }, key: 'NUE020', isSite: true }, // POINT2
+      { area: { x: [90, 198], y: [114, 145] }, key: 'NUE019', isSite: true }  // POINT1
     ]
   },
   map_L5_P3_P1_P1_P3: {
     image: Map_L5_P3_P1_P1_P3,
     back: 'map_L4_P3_P1_P1',
     children: [
+      // Existing
       { area: { x: [93, 134], y: [262, 303] }, key: 'NUE018', isSite: true },
-      { area: { x: [130, 168], y: [131, 173] }, key: 'NUE017', isSite: true }
+      { area: { x: [130, 168], y: [131, 173] }, key: 'NUE017', isSite: true },
+
+      // Added from POINTS
+      { area: { x: [58, 163], y: [250, 279] }, key: 'NUE018', isSite: true }, // POINT2
+      { area: { x: [95, 205], y: [113, 146] }, key: 'NUE017', isSite: true }  // POINT1
     ]
   },
   
@@ -376,61 +454,100 @@ const map_tree = {
     image: Map_L5_P3_P1_P2_P1,
     back: 'map_L4_P3_P1_P2',
     children: [
+      // Existing
       { area: { x: [103, 178], y: [296, 346] }, key: 'NUE016', isSite: true },
       { area: { x: [140, 203], y: [196, 247] }, key: 'NUE015', isSite: true },
-      { area: { x: [169, 228], y: [84, 136] }, key: 'NUE014', isSite: true }
+      { area: { x: [169, 228], y: [84, 136] }, key: 'NUE014', isSite: true },
+
+      // Added from POINTS
+      { area: { x: [83, 182], y: [276, 311] }, key: 'NUE016', isSite: true }, // POINT3
+      { area: { x: [113, 212], y: [174, 211] }, key: 'NUE015', isSite: true }, // POINT2
+      { area: { x: [146, 246], y: [56, 95] }, key: 'NUE014', isSite: true }  // POINT1
     ]
   },
+
   map_L5_P3_P1_P2_P2: {
     image: Map_L5_P3_P1_P2_P2,
     back: 'map_L4_P3_P1_P2',
     children: [
+      // Existing entries
       { area: { x: [103, 153], y: [266, 319] }, key: 'NUE013', isSite: true },
-      { area: { x: [135, 189], y: [156, 204] }, key: 'NUE012', isSite: true }
+      { area: { x: [135, 189], y: [156, 204] }, key: 'NUE012', isSite: true },
+
+      // New entries from polygon coordinates
+      { area: { x: [86, 178], y: [238, 274] }, key: 'NUE013', isSite: true },
+      { area: { x: [96, 218], y: [127, 163] }, key: 'NUE012', isSite: true }
     ]
   },
+
   
   map_L4_P3_P1_P3: {
     image: Map_L4_P3_P1_P3,
     back: 'map_L3_P3_P1',
     children: [
-      { area: { x: [116, 201], y: [183, 249] }, key: 'NUE044', isSite: true }
+      // Original area
+      { area: { x: [116, 201], y: [183, 249] }, key: 'NUE044', isSite: true },
+
+      // POINT1 bounding box
+      { area: { x: [119, 200], y: [166, 203] }, key: 'NUE044', isSite: true }
     ]
   },
+
   map_L4_P3_P1_P4: {
     image: Map_L4_P3_P1_P4,
     back: 'map_L3_P3_P1',
     children: [
-      { area: { x: [99, 168], y: [151, 221] }, key: 'NUE042', isSite: true }
+      // Original area
+      { area: { x: [99, 168], y: [151, 221] }, key: 'NUE042', isSite: true },
+
+      // POINT1 bounding box
+      { area: { x: [119, 166], y: [132, 170] }, key: 'NUE042', isSite: true }
     ]
   },
+
   map_L4_P3_P1_P5: {
     image: Map_L4_P3_P1_P5,
     back: 'map_L3_P3_P1',
     children: [
-      { area: { x: [90, 183], y: [137, 215] }, key: 'NUE043', isSite: true }
-    ]
-  },
-  map_L4_P3_P1_P6: {
-    image: Map_L4_P3_P1_P6,
-    back: 'map_L3_P3_P1',
-    children: [
-      { area: { x: [80, 133], y: [314, 345] }, key: 'NUE011', isSite: true },
-      { area: { x: [97, 165], y: [254, 296] }, key: 'NUE010', isSite: true },
-      { area: { x: [114, 170], y: [186, 238] }, key: 'NUE009', isSite: true },
-      { area: { x: [137, 216], y: [120, 173] }, key: 'NUE008', isSite: true },
-      { area: { x: [156, 220], y: [57, 107] }, key: 'NUE007', isSite: true }
-    ]
-  },
+      // Original region
+      { area: { x: [90, 183], y: [137, 215] }, key: 'NUE043', isSite: true },
 
-  map_L4_P3_P1_P7: {
-    image: Map_L4_P3_P1_P7,
-    back: 'map_L3_P3_P1',
-    children: [
-      { area: { x: [122, 189], y: [170, 224] }, key: 'NUE048', isSite: true }
+      // POINT1 region
+      { area: { x: [98, 187], y: [124, 161] }, key: 'NUE043', isSite: true }
     ]
   },
-  
+    map_L4_P3_P1_P6: {
+      image: Map_L4_P3_P1_P6,
+      back: 'map_L3_P3_P1',
+      children: [
+        // Existing clickable areas
+        { area: { x: [80, 133], y: [314, 345] }, key: 'NUE011', isSite: true },
+        { area: { x: [97, 165], y: [254, 296] }, key: 'NUE010', isSite: true },
+        { area: { x: [114, 170], y: [186, 238] }, key: 'NUE009', isSite: true },
+        { area: { x: [137, 216], y: [120, 173] }, key: 'NUE008', isSite: true },
+        { area: { x: [156, 220], y: [57, 107] }, key: 'NUE007', isSite: true },
+
+        // Added from map_L4-P3-P1-P6_POINT*
+        { area: { x: [138, 246], y: [43, 77] }, key: 'NUE007', isSite: true },
+        { area: { x: [114, 220], y: [114, 147] }, key: 'NUE008', isSite: true },
+        { area: { x: [85, 198], y: [168, 200] }, key: 'NUE009', isSite: true },
+        { area: { x: [61, 168], y: [232, 262] }, key: 'NUE010', isSite: true },
+        { area: { x: [45, 151], y: [277, 310] }, key: 'NUE011', isSite: true }
+      ]
+    },
+
+    map_L4_P3_P1_P7: {
+      image: Map_L4_P3_P1_P7,
+      back: 'map_L3_P3_P1',
+      children: [
+        // Original clickable region
+        { area: { x: [122, 189], y: [170, 224] }, key: 'NUE048', isSite: true },
+
+        // Added from POINT1
+        { area: { x: [110, 191], y: [146, 178] }, key: 'NUE048', isSite: true }
+      ]
+    },
+
 
   map_L3_P3_P2: {
     image: Map_L3_P3_P2,
@@ -446,8 +563,15 @@ const map_tree = {
     image: Map_L4_P3_P2_P1,
     back: 'map_L3_P3_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [215, 270], y: [235, 277] }, key: 'NUE025', isSite: true },
-      { area: { x: [29, 75], y: [106, 149] }, key: 'NUE026', isSite: true }
+      { area: { x: [29, 75], y: [106, 149] }, key: 'NUE026', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [19, 97], y: [87, 116] }, key: 'NUE026', isSite: true },
+
+      // Added from POINT2
+      { area: { x: [196, 285], y: [216, 251] }, key: 'NUE025', isSite: true }
     ]
   },
     
@@ -466,22 +590,38 @@ const map_tree = {
     image: Map_L5_P3_P2_P2_P1,
     back: 'map_L4_P3_P2_P2',
     children: [
+      // Existing entries
       { area: { x: [129, 162], y: [288, 317] }, key: 'NUE028', isSite: true },
       { area: { x: [107, 147], y: [181, 222] }, key: 'NUE027', isSite: true },
-      { area: { x: [105, 147], y: [70, 113] }, key: 'NUE029', isSite: true }
+      { area: { x: [105, 147], y: [70, 113] }, key: 'NUE029', isSite: true },
+
+      // New entries from polygon coordinates
+      { area: { x: [113, 184], y: [267, 296] }, key: 'NUE028', isSite: true },
+      { area: { x: [97, 166], y: [163, 192] }, key: 'NUE027', isSite: true },
+      { area: { x: [90, 162], y: [49, 82] }, key: 'NUE029', isSite: true }
     ]
   },
+
   
   map_L5_P3_P2_P2_P2: {
     image: Map_L5_P3_P2_P2_P2,
     back: 'map_L4_P3_P2_P2',
     children: [
+      // Existing
       { area: { x: [155, 202], y: [313, 347] }, key: 'NUE030', isSite: true },
       { area: { x: [134, 172], y: [260, 302] }, key: 'NUE031', isSite: true },
       { area: { x: [95, 126], y: [206, 241] }, key: 'NUE032', isSite: true },
       { area: { x: [88, 125], y: [157, 188] }, key: 'NUE033', isSite: true },
       { area: { x: [65, 115], y: [110, 151] }, key: 'NUE034', isSite: true },
-      { area: { x: [44, 80], y: [60, 105] }, key: 'NUE035', isSite: true }
+      { area: { x: [44, 80], y: [60, 105] }, key: 'NUE035', isSite: true },
+
+      // Added from POINT data (preserved as is for completeness)
+      { area: { x: [150, 205], y: [296, 322] }, key: 'NUE030', isSite: true }, // POINT6
+      { area: { x: [129, 187], y: [248, 272] }, key: 'NUE031', isSite: true }, // POINT5
+      { area: { x: [91, 146], y: [184, 206] }, key: 'NUE032', isSite: true }, // POINT4
+      { area: { x: [80, 134], y: [138, 156] }, key: 'NUE033', isSite: true }, // POINT3
+      { area: { x: [70, 124], y: [92, 115] }, key: 'NUE034', isSite: true }, // POINT2
+      { area: { x: [42, 94], y: [47, 73] }, key: 'NUE035', isSite: true }  // POINT1
     ]
   },
   
@@ -489,9 +629,15 @@ const map_tree = {
     image: Map_L5_P3_P2_P2_P3,
     back: 'map_L4_P3_P2_P2',
     children: [
+      // Existing
       { area: { x: [97, 140], y: [308, 347] }, key: 'NUE050', isSite: true },
       { area: { x: [91, 125], y: [172, 215] }, key: 'NUE036', isSite: true },
-      { area: { x: [92, 148], y: [80, 121] }, key: 'NUE037', isSite: true }
+      { area: { x: [92, 148], y: [80, 121] }, key: 'NUE037', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [82, 155], y: [297, 327] }, key: 'NUE050', isSite: true }, // POINT3
+      { area: { x: [70, 146], y: [165, 194] }, key: 'NUE036', isSite: true }, // POINT2
+      { area: { x: [83, 159], y: [63, 94] }, key: 'NUE037', isSite: true }    // POINT1
     ]
   },
   
@@ -499,9 +645,15 @@ const map_tree = {
     image: Map_L5_P3_P2_P2_P4,
     back: 'map_L4_P3_P2_P2',
     children: [
+      // Existing entries
       { area: { x: [114, 158], y: [268, 306] }, key: 'NUE045', isSite: true },
       { area: { x: [130, 173], y: [189, 230] }, key: 'NUE046', isSite: true },
-      { area: { x: [165, 219], y: [101, 141] }, key: 'NUE047', isSite: true }
+      { area: { x: [165, 219], y: [101, 141] }, key: 'NUE047', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [61, 191], y: [251, 281] }, key: 'NUE045', isSite: true },  // POINT3
+      { area: { x: [83, 213], y: [172, 205] }, key: 'NUE046', isSite: true },  // POINT2
+      { area: { x: [125, 254], y: [84, 114] }, key: 'NUE047', isSite: true }   // POINT1
     ]
   },
   
@@ -510,21 +662,37 @@ const map_tree = {
     image: Map_L4_P3_P2_P3,
     back: 'map_L3_P3_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [88, 129], y: [288, 323] }, key: 'NUE038', isSite: true },
       { area: { x: [114, 166], y: [230, 269] }, key: 'NUE039', isSite: true },
       { area: { x: [136, 180], y: [163, 201] }, key: 'NUE040', isSite: true },
-      { area: { x: [158, 214], y: [103, 139] }, key: 'NUE041', isSite: true }
+      { area: { x: [158, 214], y: [103, 139] }, key: 'NUE041', isSite: true },
+
+      // Added from POINT4
+      { area: { x: [56, 152], y: [265, 298] }, key: 'NUE038', isSite: true },
+
+      // Added from POINT3
+      { area: { x: [81, 186], y: [214, 243] }, key: 'NUE039', isSite: true },
+
+      // Added from POINT2
+      { area: { x: [104, 210], y: [144, 176] }, key: 'NUE040', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [133, 232], y: [86, 117] }, key: 'NUE041', isSite: true }
     ]
   },
-  
   map_L4_P3_P2_P4: {
     image: Map_L4_P3_P2_P4,
     back: 'map_L3_P3_P2',
     children: [
-      { area: { x: [98, 158], y: [163, 211] }, key: 'SAN001', isSite: true }
+      // Original clickable region
+      { area: { x: [98, 158], y: [163, 211] }, key: 'SAN001', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [64, 177], y: [151, 183] }, key: 'SAN001', isSite: true }
     ]
   },
-  
+    
   map_L3_P3_P3: {
     image: Map_L3_P3_P3,
     back: 'map_L2_P3',
@@ -547,29 +715,45 @@ const map_tree = {
     image: Map_L5_P3_P3_P1_P1,
     back: 'map_L4_P3_P3_P1',
     children: [
+      // Existing entries
       { area: { x: [58, 100], y: [260, 300] }, key: 'NUE006', isSite: true },
-      { area: { x: [158, 202], y: [80, 124] }, key: 'NUE005', isSite: true }
+      { area: { x: [158, 202], y: [80, 124] }, key: 'NUE005', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [46, 120], y: [243, 273] }, key: 'NUE006', isSite: true },  // POINT2
+      { area: { x: [139, 216], y: [62, 90] }, key: 'NUE005', isSite: true }   // POINT1
     ]
   },
-  
+
   
   map_L5_P3_P3_P1_P2: {
     image: Map_L5_P3_P3_P1_P2,
     back: 'map_L4_P3_P3_P1',
     children: [
+      // Existing entries
       { area: { x: [48, 99], y: [306, 345] }, key: 'NUE004', isSite: true },
       { area: { x: [84, 125], y: [237, 280] }, key: 'NUE003', isSite: true },
       { area: { x: [128, 182], y: [150, 191] }, key: 'NUE002', isSite: true },
-      { area: { x: [176, 228], y: [93, 143] }, key: 'NUE001', isSite: true }
+      { area: { x: [176, 228], y: [93, 143] }, key: 'NUE001', isSite: true },
+
+      // New from POINT coordinates
+      { area: { x: [23, 111], y: [282, 313] }, key: 'NUE004', isSite: true },
+      { area: { x: [63, 147], y: [219, 251] }, key: 'NUE003', isSite: true },
+      { area: { x: [113, 195], y: [129, 160] }, key: 'NUE002', isSite: true },
+      { area: { x: [154, 237], y: [75, 105] }, key: 'NUE001', isSite: true }
     ]
   },
-  
-  
+
+    
   map_L4_P3_P3_P2: {
     image: Map_L4_P3_P3_P2,
     back: 'map_L3_P3_P3',
     children: [
-      { area: { x: [132, 179], y: [129, 174] }, key: 'NUE049', isSite: true }
+      // Original clickable region
+      { area: { x: [132, 179], y: [129, 174] }, key: 'NUE049', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [113, 199], y: [110, 144] }, key: 'NUE049', isSite: true }
     ]
   },
   
@@ -587,24 +771,42 @@ const map_tree = {
     image: Map_L4_P3_P4_P1,
     back: 'map_L3_P3_P4',
     children: [
-      { area: { x: [119, 190], y: [162, 209] }, key: 'ARA001', isSite: true }
+      // Original clickable region
+      { area: { x: [119, 190], y: [162, 209] }, key: 'ARA001', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [76, 211], y: [146, 179] }, key: 'ARA001', isSite: true }
     ]
   },
+
   map_L4_P3_P4_P2: {
     image: Map_L4_P3_P4_P2,
     back: 'map_L3_P3_P4',
     children: [
+      // Existing clickable regions
       { area: { x: [177, 233], y: [189, 240] }, key: 'ARA002', isSite: true },
-      { area: { x: [39, 100], y: [133, 183] }, key: 'ARA004', isSite: true }
+      { area: { x: [39, 100], y: [133, 183] }, key: 'ARA004', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [27, 125], y: [115, 150] }, key: 'ARA004', isSite: true },
+
+      // Added from POINT2
+      { area: { x: [138, 274], y: [173, 204] }, key: 'ARA002', isSite: true }
     ]
   },
+
   map_L4_P3_P4_P3: {
     image: Map_L4_P3_P4_P3,
     back: 'map_L3_P3_P4',
     children: [
-      { area: { x: [105, 184], y: [154, 213] }, key: 'ARA003', isSite: true }
+      // Existing clickable region
+      { area: { x: [105, 184], y: [154, 213] }, key: 'ARA003', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [80, 203], y: [143, 176] }, key: 'ARA003', isSite: true }
     ]
   },
+
    
   map_L2_P4: {
     image: Map_L2_P4,
@@ -620,10 +822,17 @@ const map_tree = {
     image: Map_L3_P4_P1,
     back: 'map_L2_P4',
     children: [
+      // Original areas
       { area: { x: [31, 72], y: [268, 311] }, key: 'MAT003', isSite: true },
       { area: { x: [103, 140], y: [210, 259] }, key: 'MAT004', isSite: true },
       { area: { x: [193, 247], y: [145, 190] }, key: 'MAT005', isSite: true },
-      { area: { x: [283, 326], y: [75, 131] }, key: 'MAT006', isSite: true }
+      { area: { x: [283, 326], y: [75, 131] }, key: 'MAT006', isSite: true },
+
+      // POINT-based areas
+      { area: { x: [14, 84], y: [254, 287] }, key: 'MAT003', isSite: true },   // POINT4
+      { area: { x: [93, 164], y: [185, 216] }, key: 'MAT004', isSite: true },  // POINT3
+      { area: { x: [182, 255], y: [125, 158] }, key: 'MAT005', isSite: true }, // POINT2
+      { area: { x: [269, 341], y: [55, 92] }, key: 'MAT006', isSite: true }    // POINT1
     ]
   },
 
@@ -631,11 +840,16 @@ const map_tree = {
     image: Map_L3_P4_P2,
     back: 'map_L2_P4',
     children: [
+      // Original areas
       { area: { x: [176, 221], y: [197, 246] }, key: 'MAT002', isSite: true },
-      { area: { x: [40, 83], y: [150, 209] }, key: 'MAT001', isSite: true }
+      { area: { x: [40, 83], y: [150, 209] }, key: 'MAT001', isSite: true },
+
+      // POINT-based areas
+      { area: { x: [13, 127], y: [133, 164] }, key: 'MAT001', isSite: true },  // POINT1
+      { area: { x: [139, 252], y: [168, 200] }, key: 'MAT002', isSite: true }  // POINT2
     ]
   },
- 
+
 
   map_L2_P5: {
     image: Map_L2_P5,
@@ -654,10 +868,17 @@ const map_tree = {
     image: Map_L3_P5_P1,
     back: 'map_L2_P5',
     children: [
+      // Original areas
       { area: { x: [12, 60], y: [287, 332] }, key: 'MAT003', isSite: true },
       { area: { x: [97, 142], y: [222, 272] }, key: 'MAT004', isSite: true },
       { area: { x: [183, 232], y: [159, 209] }, key: 'MAT005', isSite: true },
-      { area: { x: [273, 315], y: [93, 146] }, key: 'MAT006', isSite: true }
+      { area: { x: [273, 315], y: [93, 146] }, key: 'MAT006', isSite: true },
+
+      // POINT-based areas (bounding box calculated from 4-point polygon)
+      { area: { x: [5, 78], y: [271, 302] }, key: 'MAT003', isSite: true },   // POINT1
+      { area: { x: [85, 155], y: [200, 233] }, key: 'MAT004', isSite: true }, // POINT2
+      { area: { x: [174, 244], y: [142, 174] }, key: 'MAT005', isSite: true }, // POINT3
+      { area: { x: [263, 333], y: [73, 107] }, key: 'MAT006', isSite: true }   // POINT4
     ]
   },
     
@@ -678,7 +899,11 @@ const map_tree = {
     image: Map_L4_P5_P2_P1,
     back: 'map_L3_P5_P2',
     children: [
-      { area: { x: [116, 175], y: [161, 225] }, key: 'BRA002', isSite: true }
+      // Existing clickable region
+      { area: { x: [116, 175], y: [161, 225] }, key: 'BRA002', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [117, 171], y: [137, 174] }, key: 'BRA002', isSite: true }
     ]
   },
 
@@ -686,31 +911,51 @@ const map_tree = {
     image: Map_L4_P5_P2_P2,
     back: 'map_L3_P5_P2',
     children: [
+      // Original clickable regions
       { area: { x: [53, 100], y: [299, 348] }, key: 'BRA004', isSite: true },
       { area: { x: [113, 172], y: [239, 298] }, key: 'BRA005', isSite: true },
       { area: { x: [178, 218], y: [161, 212] }, key: 'BRA006', isSite: true },
-      { area: { x: [210, 258], y: [76, 126] }, key: 'BRA007', isSite: true }
+      { area: { x: [210, 258], y: [76, 126] }, key: 'BRA007', isSite: true },
+
+      // Added from POINTs
+      { area: { x: [45, 111], y: [266, 308] }, key: 'BRA004', isSite: true },
+      { area: { x: [53, 226], y: [206, 249] }, key: 'BRA005', isSite: true },
+      { area: { x: [119, 279], y: [130, 169] }, key: 'BRA006', isSite: true },
+      { area: { x: [175, 299], y: [39, 78] }, key: 'BRA007', isSite: true }
     ]
   },
-  
+
 
   map_L4_P5_P2_P3: {
     image: Map_L4_P5_P2_P3,
     back: 'map_L3_P5_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [35, 89], y: [304, 345] }, key: 'BRA008', isSite: true },
       { area: { x: [93, 155], y: [212, 263] }, key: 'BRA009', isSite: true },
-      { area: { x: [158, 215], y: [102, 154] }, key: 'BRA010', isSite: true }
+      { area: { x: [158, 215], y: [102, 154] }, key: 'BRA010', isSite: true },
+
+      // Added from POINTs
+      { area: { x: [55, 174], y: [182, 219] }, key: 'BRA009', isSite: true },
+      { area: { x: [87, 291], y: [64, 109] }, key: 'BRA010', isSite: true },
+      { area: { x: [29, 111], y: [266, 305] }, key: 'BRA010', isSite: true }
     ]
   },
+
 
   map_L4_P5_P2_P4: {
     image: Map_L4_P5_P2_P4,
     back: 'map_L3_P5_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [48, 109], y: [310, 348] }, key: 'BRA011', isSite: true },
       { area: { x: [82, 131], y: [260, 307] }, key: 'BRA012', isSite: true },
-      { area: { x: [204, 253], y: [82, 121] }, key: 'BRA013', isSite: true }
+      { area: { x: [204, 253], y: [82, 121] }, key: 'BRA013', isSite: true },
+
+      // Added from POINTs
+      { area: { x: [40, 124], y: [301, 339] }, key: 'BRA011', isSite: true },
+      { area: { x: [91, 141], y: [234, 270] }, key: 'BRA012', isSite: true },
+      { area: { x: [195, 264], y: [57, 92] }, key: 'BRA013', isSite: true }
     ]
   },
 
@@ -718,19 +963,29 @@ const map_tree = {
     image: Map_L4_P5_P2_P5,
     back: 'map_L3_P5_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [67, 132], y: [252, 302] }, key: 'BRA014', isSite: true },
-      { area: { x: [146, 203], y: [145, 191] }, key: 'BRA015', isSite: true }
+      { area: { x: [146, 203], y: [145, 191] }, key: 'BRA015', isSite: true },
+
+      // Added from POINTs
+      { area: { x: [119, 233], y: [121, 159] }, key: 'BRA015', isSite: true },
+      { area: { x: [63, 132], y: [231, 268] }, key: 'BRA014', isSite: true }
     ]
   },
+
 
   map_L4_P5_P2_P6: {
     image: Map_L4_P5_P2_P6,
     back: 'map_L3_P5_P2',
     children: [
-      { area: { x: [135, 196], y: [154, 209] }, key: 'BRA016', isSite: true }
+      // Existing region
+      { area: { x: [135, 196], y: [154, 209] }, key: 'BRA016', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [111, 215], y: [134, 171] }, key: 'BRA016', isSite: true }
     ]
   },
-  
+
 
   map_L3_P5_P3: {
     image: Map_L3_P5_P3,
@@ -746,29 +1001,45 @@ const map_tree = {
     image: Map_L4_P5_P3_P1,
     back: 'map_L3_P5_P3',
     children: [
+      // Existing areas
       { area: { x: [69, 159], y: [248, 309] }, key: 'BRA017', isSite: true },
-      { area: { x: [156, 223], y: [157, 207] }, key: 'BRA018', isSite: true }
+      { area: { x: [156, 223], y: [157, 207] }, key: 'BRA018', isSite: true },
+
+      // New areas from POINT definitions
+      { area: { x: [134, 235], y: [122, 158] }, key: 'BRA018', isSite: true },
+      { area: { x: [55, 161], y: [221, 256] }, key: 'BRA017', isSite: true }
     ]
   },
-  
+
   map_L4_P5_P3_P2: {
     image: Map_L4_P5_P3_P2,
     back: 'map_L3_P5_P3',
     children: [
-      { area: { x: [135, 205], y: [165, 227] }, key: 'GAL001', isSite: true }
+      // Existing area
+      { area: { x: [135, 205], y: [165, 227] }, key: 'GAL001', isSite: true },
+
+      // New area from POINT1
+      { area: { x: [95, 235], y: [145, 180] }, key: 'GAL001', isSite: true }
     ]
   },
+
   
   map_L4_P5_P3_P3: {
     image: Map_L4_P5_P3_P3,
     back: 'map_L3_P5_P3',
     children: [
+      // Existing areas
       { area: { x: [39, 103], y: [305, 349] }, key: 'GAL003', isSite: true },
       { area: { x: [126, 195], y: [208, 259] }, key: 'GAL005', isSite: true },
-      { area: { x: [212, 268], y: [105, 161] }, key: 'GAL007', isSite: true }
+      { area: { x: [212, 268], y: [105, 161] }, key: 'GAL007', isSite: true },
+
+      // New areas from POINT1, POINT2, POINT3
+      { area: { x: [197, 282], y: [82, 117] }, key: 'GAL007', isSite: true },
+      { area: { x: [112, 204], y: [186, 221] }, key: 'GAL005', isSite: true },
+      { area: { x: [39, 110], y: [282, 316] }, key: 'GAL003', isSite: true }
     ]
   },
-  
+
 
   map_L3_P5_P4: {
     image: Map_L3_P5_P4,
@@ -781,70 +1052,108 @@ const map_tree = {
     ]
   },
 
-map_L4_P5_P4_P1: {
-  image: Map_L4_P5_P4_P1,
-  back: 'map_L3_P5_P4',
-  children: [
-    { area: { x: [0, 80], y: [266, 348] }, key: 'map_L5_P5_P4_P1_P1' },
-    { area: { x: [68, 175], y: [183, 285] }, key: 'map_L5_P5_P4_P1_P2' },
-    { area: { x: [163, 263], y: [96, 201] }, key: 'map_L5_P5_P4_P1_P3' },
-    { area: { x: [257, 344], y: [17, 109] }, key: 'map_L5_P5_P4_P1_P4' },
-    { area: { x: [101, 141], y: [67, 114] }, key: 'map_L5_P5_P4_P1_P5' }
-  ]
-},
+  map_L4_P5_P4_P1: {
+    image: Map_L4_P5_P4_P1,
+    back: 'map_L3_P5_P4',
+    children: [
+      { area: { x: [0, 80], y: [266, 348] }, key: 'map_L5_P5_P4_P1_P1' },
+      { area: { x: [68, 175], y: [183, 285] }, key: 'map_L5_P5_P4_P1_P2' },
+      { area: { x: [163, 263], y: [96, 201] }, key: 'map_L5_P5_P4_P1_P3' },
+      { area: { x: [257, 344], y: [17, 109] }, key: 'map_L5_P5_P4_P1_P4' },
+      { area: { x: [101, 141], y: [67, 114] }, key: 'map_L5_P5_P4_P1_P5' }
+    ]
+  },
 
   map_L5_P5_P4_P1_P1: {
     image: Map_L5_P5_P4_P1_P1,
     back: 'map_L4_P5_P4_P1',
     children: [
+      // Existing entries
       { area: { x: [37, 102], y: [236, 301] }, key: 'GAL013', isSite: true },
-      { area: { x: [238, 313], y: [51, 115] }, key: 'GAL014', isSite: true }
+      { area: { x: [238, 313], y: [51, 115] }, key: 'GAL014', isSite: true },
+
+      // New from POINT coordinates
+      { area: { x: [33, 101], y: [238, 267] }, key: 'GAL013', isSite: true },
+      { area: { x: [208, 329], y: [50, 78] }, key: 'GAL014', isSite: true }
     ]
   },
+
   map_L5_P5_P4_P1_P2: {
     image: Map_L5_P5_P4_P1_P2,
     back: 'map_L4_P5_P4_P1',
     children: [
+      // Existing entries
       { area: { x: [51, 112], y: [268, 319] }, key: 'GAL017', isSite: true },
       { area: { x: [168, 223], y: [155, 211] }, key: 'GAL019', isSite: true },
-      { area: { x: [275, 339], y: [59, 117] }, key: 'GAL022', isSite: true }
+      { area: { x: [275, 339], y: [59, 117] }, key: 'GAL022', isSite: true },
+
+      // New from POINT coordinates
+      { area: { x: [0, 163], y: [255, 283] }, key: 'GAL017', isSite: true },
+      { area: { x: [98, 264], y: [148, 179] }, key: 'GAL019', isSite: true },
+      { area: { x: [263, 337], y: [43, 72] }, key: 'GAL022', isSite: true }
     ]
   },
+
   map_L5_P5_P4_P1_P3: {
     image: Map_L5_P5_P4_P1_P3,
     back: 'map_L4_P5_P4_P1',
     children: [
+      // Existing entries
       { area: { x: [28, 92], y: [270, 327] }, key: 'GAL023', isSite: true },
       { area: { x: [104, 174], y: [202, 257] }, key: 'GAL024', isSite: true },
-      { area: { x: [247, 316], y: [61, 115] }, key: 'GAL025', isSite: true }
+      { area: { x: [247, 316], y: [61, 115] }, key: 'GAL025', isSite: true },
+
+      // New from POINT coordinates
+      { area: { x: [20, 96], y: [257, 290] }, key: 'GAL023', isSite: true },
+      { area: { x: [90, 183], y: [181, 212] }, key: 'GAL024', isSite: true },
+      { area: { x: [243, 314], y: [45, 74] }, key: 'GAL025', isSite: true }
     ]
   },
+
   map_L5_P5_P4_P1_P4: {
     image: Map_L5_P5_P4_P1_P4,
     back: 'map_L4_P5_P4_P1',
     children: [
+      // Existing entries
       { area: { x: [45, 116], y: [254, 311] }, key: 'GAL026', isSite: true },
       { area: { x: [131, 192], y: [149, 207] }, key: 'GAL027', isSite: true },
-      { area: { x: [222, 296], y: [93, 146] }, key: 'GAL028', isSite: true }
+      { area: { x: [222, 296], y: [93, 146] }, key: 'GAL028', isSite: true },
+
+      // New from POINT coordinates
+      { area: { x: [43, 107], y: [238, 269] }, key: 'GAL026', isSite: true },
+      { area: { x: [103, 219], y: [143, 174] }, key: 'GAL027', isSite: true },
+      { area: { x: [208, 296], y: [79, 112] }, key: 'GAL028', isSite: true }
     ]
   },
+
   map_L5_P5_P4_P1_P5: {
     image: Map_L5_P5_P4_P1_P5,
     back: 'map_L4_P5_P4_P1',
     children: [
-      { area: { x: [137, 240], y: [151, 217] }, key: 'GAL021', isSite: true }
+      // Existing entry
+      { area: { x: [137, 240], y: [151, 217] }, key: 'GAL021', isSite: true },
+
+      // Added from POINT1 coordinates
+      { area: { x: [61, 274], y: [141, 173] }, key: 'GAL021', isSite: true }
     ]
   },
+
 
 
   map_L4_P5_P4_P2: {
     image: Map_L4_P5_P4_P2,
     back: 'map_L3_P5_P4',
     children: [
+      // Existing areas
       { area: { x: [73, 120], y: [245, 297] }, key: 'GAL030', isSite: true },
-      { area: { x: [247, 323], y: [74, 132] }, key: 'GAL032', isSite: true }
+      { area: { x: [247, 323], y: [74, 132] }, key: 'GAL032', isSite: true },
+
+      // New areas from POINT1 and POINT2
+      { area: { x: [243, 310], y: [49, 80] }, key: 'GAL032', isSite: true },
+      { area: { x: [63, 125], y: [217, 245] }, key: 'GAL030', isSite: true }
     ]
   },
+
 
   map_L4_P5_P4_P3: {
     image: Map_L4_P5_P4_P3,
@@ -861,17 +1170,27 @@ map_L4_P5_P4_P1: {
     image: Map_L5_P5_P4_P3_P1,
     back: 'map_L4_P5_P4_P3',
     children: [
+      // Existing entries
       { area: { x: [56, 120], y: [234, 297] }, key: 'GAL083', isSite: true },
-      { area: { x: [234, 288], y: [77, 127] }, key: 'GAL084', isSite: true }
+      { area: { x: [234, 288], y: [77, 127] }, key: 'GAL084', isSite: true },
+
+      // Added from POINT2
+      { area: { x: [38, 132], y: [221, 252] }, key: 'GAL083', isSite: true },
+      
+      // Added from POINT1
+      { area: { x: [229, 295], y: [59, 90] }, key: 'GAL084', isSite: true }
     ]
   },
+
   map_L5_P5_P4_P3_P2: {
     image: Map_L5_P5_P4_P3_P2,
     back: 'map_L4_P5_P4_P3',
     children: [
-      { area: { x: [142, 211], y: [149, 204] }, key: 'GAL085', isSite: true }
+      { area: { x: [142, 211], y: [149, 204] }, key: 'GAL085', isSite: true },
+      { area: { x: [137, 207], y: [138, 167] }, key: 'GAL085', isSite: true } // Added from POINT1
     ]
   },
+
   map_L5_P5_P4_P3_P3: {
     image: Map_L5_P5_P4_P3_P3,
     back: 'map_L4_P5_P4_P3',
@@ -889,18 +1208,25 @@ map_L4_P5_P4_P1: {
     back: 'map_L5_P5_P4_P3_P3',
     children: [
       { area: { x: [82, 137], y: [201, 258] }, key: 'GAL034', isSite: true },
-      { area: { x: [195, 256], y: [93, 143] }, key: 'GAL035', isSite: true }
+      { area: { x: [195, 256], y: [93, 143] }, key: 'GAL035', isSite: true },
+      { area: { x: [83, 137], y: [186, 232] }, key: 'GAL034', isSite: true },  // new
+      { area: { x: [193, 248], y: [80, 122] }, key: 'GAL035', isSite: true }   // duplicate key – optional
     ]
   },
+
   map_L6_P5_P4_P3_P3_P2: {
     image: Map_L6_P5_P4_P3_P3_P2,
     back: 'map_L5_P5_P4_P3_P3',
     children: [
       { area: { x: [14, 78], y: [266, 309] }, key: 'GAL036', isSite: true },
       { area: { x: [130, 202], y: [134, 183] }, key: 'GAL037', isSite: true },
-      { area: { x: [246, 310], y: [55, 105] }, key: 'GAL038', isSite: true }
+      { area: { x: [246, 310], y: [55, 105] }, key: 'GAL038', isSite: true },
+      { area: { x: [14, 64], y: [251, 277] }, key: 'GAL036', isSite: true },    // from POINT3
+      { area: { x: [82, 240], y: [124, 152] }, key: 'GAL037', isSite: true },  // from POINT2
+      { area: { x: [208, 340], y: [41, 74] }, key: 'GAL038', isSite: true }    // from POINT1
     ]
   },
+
   map_L6_P5_P4_P3_P3_P3: {
     image: Map_L6_P5_P4_P3_P3_P3,
     back: 'map_L5_P5_P4_P3_P3',
@@ -908,23 +1234,36 @@ map_L4_P5_P4_P1: {
       { area: { x: [55, 109], y: [292, 342] }, key: 'GAL039', isSite: true },
       { area: { x: [106, 167], y: [234, 281] }, key: 'GAL040', isSite: true },
       { area: { x: [181, 243], y: [167, 211] }, key: 'GAL041', isSite: true },
-      { area: { x: [255, 316], y: [86, 136] }, key: 'GAL042', isSite: true }
+      { area: { x: [255, 316], y: [86, 136] }, key: 'GAL042', isSite: true },
+      { area: { x: [3, 166], y: [272, 304] }, key: 'GAL039', isSite: true },   // from POINT4
+      { area: { x: [99, 160], y: [221, 256] }, key: 'GAL040', isSite: true },  // from POINT3
+      { area: { x: [178, 236], y: [140, 172] }, key: 'GAL041', isSite: true }, // from POINT2
+      { area: { x: [198, 349], y: [68, 101] }, key: 'GAL042', isSite: true }   // from POINT1
     ]
   },
+
   map_L6_P5_P4_P3_P3_P4: {
     image: Map_L6_P5_P4_P3_P3_P4,
     back: 'map_L5_P5_P4_P3_P3',
     children: [
       { area: { x: [77, 140], y: [232, 286] }, key: 'GAL044', isSite: true },
-      { area: { x: [173, 232], y: [108, 162] }, key: 'GAL045', isSite: true }
+      { area: { x: [173, 232], y: [108, 162] }, key: 'GAL045', isSite: true },
+      { area: { x: [37, 177], y: [203, 237] }, key: 'GAL044', isSite: true }, // from POINT2
+      { area: { x: [135, 264], y: [76, 111] }, key: 'GAL045', isSite: true }  // from POINT1
     ]
   },
+
   map_L6_P5_P4_P3_P3_P5: {
     image: Map_L6_P5_P4_P3_P3_P5,
     back: 'map_L5_P5_P4_P3_P3',
     children: [
+      // Existing children (preserved)
       { area: { x: [38, 94], y: [273, 329] }, key: 'GAL046', isSite: true },
-      { area: { x: [208, 280], y: [55, 109] }, key: 'GAL047', isSite: true }
+      { area: { x: [208, 280], y: [55, 109] }, key: 'GAL047', isSite: true },
+
+      // New additions (from polygon points)
+      { area: { x: [13, 116], y: [242, 279] }, key: 'GAL046', isSite: true },
+      { area: { x: [193, 300], y: [25, 57] }, key: 'GAL047', isSite: true }
     ]
   },
 
@@ -934,19 +1273,29 @@ map_L4_P5_P4_P1: {
     children: [
       { area: { x: [71, 119], y: [256, 314] }, key: 'GAL048', isSite: true },
       { area: { x: [139, 192], y: [189, 243] }, key: 'GAL049', isSite: true },
-      { area: { x: [203, 256], y: [115, 159] }, key: 'GAL050', isSite: true }
+      { area: { x: [203, 256], y: [115, 159] }, key: 'GAL050', isSite: true },
+      { area: { x: [38, 145], y: [236, 269] }, key: 'GAL048', isSite: true },
+      { area: { x: [106, 219], y: [161, 194] }, key: 'GAL049', isSite: true },
+      { area: { x: [172, 282], y: [90, 124] }, key: 'GAL050', isSite: true }
     ]
   },
+
 
 
   map_L4_P5_P4_P4: {
     image: Map_L4_P5_P4_P4,
     back: 'map_L3_P5_P4',
     children: [
+      // Existing entries
       { area: { x: [103, 142], y: [216, 268] }, key: 'GAL053', isSite: true },
-      { area: { x: [194, 253], y: [120, 171] }, key: 'GAL055', isSite: true }
+      { area: { x: [194, 253], y: [120, 171] }, key: 'GAL055', isSite: true },
+
+      // Added from polygon coordinates
+      { area: { x: [50, 196], y: [190, 222] }, key: 'GAL053', isSite: true },
+      { area: { x: [147, 293], y: [106, 136] }, key: 'GAL055', isSite: true }
     ]
   },
+
 
   map_L3_P5_P5: {
     image: Map_L3_P5_P5,
@@ -965,15 +1314,24 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P5_P5_P1,
     back: 'map_L3_P5_P5',
     children: [
-      { area: { x: [120, 186], y: [116, 176] }, key: 'GAL082', isSite: true }
+      // Existing area
+      { area: { x: [120, 186], y: [116, 176] }, key: 'GAL082', isSite: true },
+
+      // New area from POINT1
+      { area: { x: [112, 202], y: [107, 140] }, key: 'GAL082', isSite: true }
     ]
   },
+
 
   map_L4_P5_P5_P2: {
     image: Map_L4_P5_P5_P2,
     back: 'map_L3_P5_P5',
     children: [
-      { area: { x: [110, 200], y: [140, 222] }, key: 'GAL058', isSite: true }
+      // Existing area
+      { area: { x: [110, 200], y: [140, 222] }, key: 'GAL058', isSite: true },
+
+      // New area from POINT1
+      { area: { x: [105, 188], y: [131, 165] }, key: 'GAL058', isSite: true }
     ]
   },
 
@@ -981,13 +1339,19 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P5_P5_P3,
     back: 'map_L3_P5_P5',
     children: [
+      // Existing areas
       { area: { x: [28, 87], y: [306, 347] }, key: 'GAL059', isSite: true },
       { area: { x: [108, 166], y: [179, 242] }, key: 'GAL061', isSite: true },
-      { area: { x: [212, 271], y: [69, 127] }, key: 'GAL062', isSite: true }
+      { area: { x: [212, 271], y: [69, 127] }, key: 'GAL062', isSite: true },
+
+      // Added from POINT3
+      { area: { x: [12, 100], y: [285, 318] }, key: 'GAL059', isSite: true },
+      // Added from POINT2
+      { area: { x: [97, 173], y: [170, 203] }, key: 'GAL061', isSite: true },
+      // Added from POINT1
+      { area: { x: [207, 273], y: [45, 83] }, key: 'GAL062', isSite: true }
     ]
   },
-
-
 
   map_L4_P5_P5_P4: {
     image: Map_L4_P5_P5_P4,
@@ -1003,29 +1367,45 @@ map_L4_P5_P4_P1: {
     image: Map_L5_P5_P5_P4_P1,
     back: 'map_L4_P5_P5_P4',
     children: [
+      // Existing entries
       { area: { x: [15, 79], y: [282, 334] }, key: 'GAL064', isSite: true },
       { area: { x: [96, 157], y: [214, 264] }, key: 'GAL065', isSite: true },
       { area: { x: [172, 239], y: [135, 195] }, key: 'GAL066', isSite: true },
-      { area: { x: [253, 319], y: [72, 131] }, key: 'GAL067', isSite: true }
+      { area: { x: [253, 319], y: [72, 131] }, key: 'GAL067', isSite: true },
+
+      // New additions (same keys allowed, different coordinates)
+      { area: { x: [3, 88], y: [263, 290] }, key: 'GAL064', isSite: true },
+      { area: { x: [91, 170], y: [194, 225] }, key: 'GAL065', isSite: true },
+      { area: { x: [135, 280], y: [125, 154] }, key: 'GAL066', isSite: true },
+      { area: { x: [249, 315], y: [51, 80] }, key: 'GAL067', isSite: true }
     ]
   },
+
 
   map_L5_P5_P5_P4_P2: {
     image: Map_L5_P5_P5_P4_P2,
     back: 'map_L4_P5_P5_P4',
     children: [
+      // Existing entries
       { area: { x: [49, 109], y: [248, 315] }, key: 'GAL068', isSite: true },
-      { area: { x: [209, 273], y: [122, 190] }, key: 'GAL069', isSite: true }
+      { area: { x: [209, 273], y: [122, 190] }, key: 'GAL069', isSite: true },
+
+      // New entries from provided coordinates
+      { area: { x: [16, 138], y: [227, 261] }, key: 'GAL068', isSite: true },
+      { area: { x: [200, 276], y: [93, 130] }, key: 'GAL069', isSite: true }
     ]
   },
+
 
   map_L5_P5_P5_P4_P3: {
     image: Map_L5_P5_P5_P4_P3,
     back: 'map_L4_P5_P5_P4',
     children: [
-      { area: { x: [134, 204], y: [179, 252] }, key: 'GAL070', isSite: true }
+      { area: { x: [134, 204], y: [179, 252] }, key: 'GAL070', isSite: true },
+      { area: { x: [127, 191], y: [163, 196] }, key: 'GAL070', isSite: true }
     ]
   },
+
 
 
   map_L4_P5_P5_P5: {
@@ -1043,9 +1423,12 @@ map_L4_P5_P4_P1: {
     back: 'map_L4_P5_P5_P5',
     children: [
       { area: { x: [61, 136], y: [217, 278] }, key: 'GAL072', isSite: true },
-      { area: { x: [209, 285], y: [111, 171] }, key: 'GAL073', isSite: true }
+      { area: { x: [209, 285], y: [111, 171] }, key: 'GAL073', isSite: true },
+      { area: { x: [49, 137], y: [197, 236] }, key: 'GAL072', isSite: true },
+      { area: { x: [196, 289], y: [89, 125] }, key: 'GAL073', isSite: true }
     ]
   },
+
 
   map_L5_P5_P5_P5_P2: {
     image: Map_L5_P5_P5_P5_P2,
@@ -1054,16 +1437,26 @@ map_L4_P5_P4_P1: {
       { area: { x: [18, 75], y: [256, 311] }, key: 'GAL074', isSite: true },
       { area: { x: [94, 154], y: [215, 267] }, key: 'GAL075', isSite: true },
       { area: { x: [156, 213], y: [166, 214] }, key: 'GAL076', isSite: true },
-      { area: { x: [216, 280], y: [111, 173] }, key: 'GAL077', isSite: true }
+      { area: { x: [216, 280], y: [111, 173] }, key: 'GAL077', isSite: true },
+      { area: { x: [6, 82], y: [225, 260] }, key: 'GAL074', isSite: true },
+      { area: { x: [76, 156], y: [185, 219] }, key: 'GAL075', isSite: true },
+      { area: { x: [145, 218], y: [134, 169] }, key: 'GAL076', isSite: true },
+      { area: { x: [201, 290], y: [86, 121] }, key: 'GAL077', isSite: true }
     ]
   },
+
 
   map_L3_P5_P6: {
     image: Map_L3_P5_P6,
     back: 'map_L2_P5',
     children: [
+      // Original areas
       { area: { x: [117, 171], y: [227, 280] }, key: 'HAR002', isSite: true },
-      { area: { x: [151, 204], y: [127, 179] }, key: 'HAR001', isSite: true }
+      { area: { x: [151, 204], y: [127, 179] }, key: 'HAR001', isSite: true },
+
+      // POINT-based areas
+      { area: { x: [111, 239], y: [97, 137] }, key: 'HAR001', isSite: true },  // POINT1
+      { area: { x: [76, 205], y: [197, 236] }, key: 'HAR002', isSite: true }   // POINT2
     ]
   },
   
@@ -1090,14 +1483,23 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P6_P1_P1,
     back: 'map_L3_P6_P1',
     children: [
-      { area: { x: [100, 171], y: [181, 244] }, key: 'JEF001', isSite: true }
+      // Existing area
+      { area: { x: [100, 171], y: [181, 244] }, key: 'JEF001', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [81, 187], y: [151, 188] }, key: 'JEF001', isSite: true }
     ]
   },
+
   map_L4_P6_P1_P2: {
     image: Map_L4_P6_P1_P2,
     back: 'map_L3_P6_P1',
     children: [
-      { area: { x: [91, 181], y: [159, 229] }, key: 'JEF002', isSite: true }
+      // Existing region
+      { area: { x: [91, 181], y: [159, 229] }, key: 'JEF002', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [79, 191], y: [140, 173] }, key: 'JEF002', isSite: true }
     ]
   },
 
@@ -1105,18 +1507,31 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P6_P1_P3,
     back: 'map_L3_P6_P1',
     children: [
+      // Existing clickable regions
       { area: { x: [21, 81], y: [264, 335] }, key: 'JEF003', isSite: true },
       { area: { x: [110, 178], y: [212, 268] }, key: 'JEF004', isSite: true },
       { area: { x: [203, 276], y: [164, 223] }, key: 'JEF005', isSite: true },
-      { area: { x: [279, 332], y: [128, 182] }, key: 'JEF006', isSite: true }
+      { area: { x: [279, 332], y: [128, 182] }, key: 'JEF006', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [10, 86], y: [254, 283] }, key: 'JEF003', isSite: true },
+      { area: { x: [101, 180], y: [202, 233] }, key: 'JEF004', isSite: true },
+      { area: { x: [196, 274], y: [157, 183] }, key: 'JEF005', isSite: true },
+      { area: { x: [265, 342], y: [118, 146] }, key: 'JEF006', isSite: true }
     ]
   },
+
   map_L4_P6_P1_P4: {
     image: Map_L4_P6_P1_P4,
     back: 'map_L3_P6_P1',
     children: [
+      // Existing clickable regions
       { area: { x: [43, 98], y: [231, 292] }, key: 'JEF010', isSite: true },
-      { area: { x: [238, 315], y: [117, 182] }, key: 'JEF013', isSite: true }
+      { area: { x: [238, 315], y: [117, 182] }, key: 'JEF007', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [9, 130], y: [217, 243] }, key: 'JEF010', isSite: true },
+      { area: { x: [227, 330], y: [109, 140] }, key: 'JEF007', isSite: true }
     ]
   },
 
@@ -1136,8 +1551,13 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P6_P2_P1,
     back: 'map_L3_P6_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [100, 168], y: [180, 249] }, key: 'JEF011', isSite: true },
-      { area: { x: [197, 271], y: [109, 171] }, key: 'JEF008', isSite: true }
+      { area: { x: [197, 271], y: [109, 171] }, key: 'JEF008', isSite: true },
+
+      // Added from POINT data
+      { area: { x: [48, 218], y: [149, 187] }, key: 'JEF011', isSite: true },
+      { area: { x: [155, 319], y: [84, 122] }, key: 'JEF008', isSite: true }
     ]
   },
 
@@ -1145,7 +1565,11 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P6_P2_P2,
     back: 'map_L3_P6_P2',
     children: [
-      { area: { x: [127, 191], y: [151, 221] }, key: 'JEF012', isSite: true }
+      // Existing clickable region
+      { area: { x: [127, 191], y: [151, 221] }, key: 'JEF012', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [89, 237], y: [132, 171] }, key: 'JEF012', isSite: true }
     ]
   },
 
@@ -1153,8 +1577,15 @@ map_L4_P5_P4_P1: {
     image: Map_L4_P6_P2_P3,
     back: 'map_L3_P6_P2',
     children: [
+      // Existing clickable regions
       { area: { x: [55, 109], y: [162, 220] }, key: 'JEF009', isSite: true },
-      { area: { x: [218, 285], y: [127, 178] }, key: 'JEF013', isSite: true }
+      { area: { x: [218, 285], y: [127, 178] }, key: 'JEF013', isSite: true },
+
+      // Added from POINT2
+      { area: { x: [29, 134], y: [147, 178] }, key: 'JEF009', isSite: true },
+
+      // Added from POINT1
+      { area: { x: [190, 313], y: [109, 141] }, key: 'JEF013', isSite: true }
     ]
   },
 
@@ -1317,8 +1748,13 @@ map_L4_P5_P4_P1: {
     return false;
   };
 
-  
-  const handleMapPress = React.useCallback((evt) => {
+  const screenWidth = Dimensions.get('window').width;
+  const isSmallScreen = screenWidth < 360; // threshold you define
+
+  const dynamicPickerStyle = {
+    height: isSmallScreen ? 50 : 40,
+  };
+    const handleMapPress = React.useCallback((evt) => {
     const { locationX, locationY } = evt.nativeEvent;
   
     handleMapNavigation({
@@ -1643,7 +2079,6 @@ useEffect(() => {
             renderScene={renderScene}
             onIndexChange={setIndex}
             initialLayout={initialLayout}
-
           />
           <TouchableOpacity
             style={styles.closeButton} processSiteOptions
@@ -1670,7 +2105,7 @@ useEffect(() => {
                   styles.dropdownContainer,
                   {
                     position: 'absolute',
-                    top: buttonLayout.y + buttonLayout.height  + 8,
+                    top: buttonLayout.y + buttonLayout.height + insets.top + 8,
                     left: buttonLayout.x,
                     width: buttonLayout.width,
                   },
@@ -1696,14 +2131,15 @@ useEffect(() => {
           <TouchableOpacity
             ref={pickerRef}
             onPress={openDropdown}
-            style={styles.pickerButton}
+            style={[styles.pickerButton, dynamicPickerStyle]}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text style={{ color: 'blue', padding: 5 }}>
                 {selectedSite
-                  ? siteOptionsV2.find(item => item.match(/\(([^)]+)\)/)?.[1] === selectedSite)
+                  ? (siteOptionsV2.find(item => item.includes(`(${selectedSite})`)) || 'Select Site')
                   : 'Select Site'}
               </Text>
+
             </View>
           </TouchableOpacity>
 
@@ -1784,7 +2220,7 @@ useEffect(() => {
         onRequestClose={() => setCamModalVisible(false)}
       >
         <SafeAreaView style={styles.modalView_2}>
-          <TouchableOpacity onPress={handleCamPress} style={{ width: '100%', height: '50%', justifyContent: 'center', alignItems: 'center' }}>
+          <TouchableOpacity onPress={handleCamPress} style={{ width: '100%', height: screenHeight < 700 ? '70%' : '50%', justifyContent: 'center', alignItems: 'center' }}>
             {selectedImage && (
               <Image
                 source={selectedImage}

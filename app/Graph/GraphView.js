@@ -24,15 +24,16 @@ const GraphView = ({ siteId }) => {
   }, [tooltipData]);
   useEffect(() => {
   }, [tooltipPos]);
-  
+
     const windowWidth = Dimensions.get('window').width;
     const minWidth = windowWidth; // make sure it fills at least the screen
     const numDays = (endDate - startDate) / (1000 * 60 * 60 * 24); // number of days
 
     // Adjust widthPerDay to be responsive
     const widthPerDay = windowWidth < 400 ? 25 : windowWidth < 600 ? 20 : 15;
+  const chartWidth = ((endDate - startDate) / (1000 * 60 * 60 * 24)) * widthPerDay + chartPadding.left + chartPadding.right;
 
-    const screenWidth = Math.max(minWidth, numDays * widthPerDay);
+const screenWidth = Dimensions.get('window').width;
 
   const screenHeight = 400;
   const formatDate = d3.timeFormat("%d %b");
@@ -98,7 +99,7 @@ const GraphView = ({ siteId }) => {
 
       if (!parsedData.length) return;
 
-      const filteredData = parsedData.filter(d => d.date && Object.keys(d).some(k => k !== 'date' && !isNaN(d[k])));
+const filteredData = parsedData.filter(d => d.date); // keep all rows with valid date, even if all values are null
       const allDates = filteredData.map(d => d.date).filter(Boolean);
 
       const minDate = d3.min(allDates) || new Date();
@@ -174,10 +175,24 @@ const GraphView = ({ siteId }) => {
   };
   const createLinePath = (dataPoints) => {
     if (!dataPoints.length) return '';
-    return dataPoints.reduce((path, point, i) => {
-      return path + `${i === 0 ? 'M' : 'L'} ${xScale(point.date)} ${yScale(point.value)} `;
-    }, '');
+
+    let path = '';
+    let started = false;
+
+    dataPoints.forEach((point, i) => {
+      if (point.value === null || point.value === undefined || isNaN(point.value)) {
+        started = false; // break line on null
+      } else {
+        const x = xScale(point.date);
+        const y = yScale(point.value);
+        path += `${started ? 'L' : 'M'} ${x} ${y} `;
+        started = true;
+      }
+    });
+
+    return path;
   };
+
   const handleTooltipPress = (e) => {
     if (!startDate || !endDate || Object.keys(data).length === 0) return;
   
@@ -248,58 +263,139 @@ const GraphView = ({ siteId }) => {
   }
   
   
-  let tickValues = [];
-  if (startDate && endDate) {
-    const current = new Date(startDate);
-    const endLimit = new Date(endDate);
-  
-    // Optional: Extend to end of next month
-    // endLimit = new Date(endLimit.getFullYear(), endLimit.getMonth() + 2, 0);
-  
-    while (current <= endLimit) {
-      tickValues.push(new Date(current));
-      current.setDate(current.getDate() + 7); // move forward by 7 days
-    }
+let tickValues = [];
+if (startDate && endDate) {
+  const current = new Date(startDate);
+  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+  let step = 1;
+  if (totalDays > 60) step = 14;
+  else if (totalDays > 30) step = 7;
+  else if (totalDays > 14) step = 3;
+
+  while (current <= endDate) {
+    tickValues.push(new Date(current));
+    current.setDate(current.getDate() + step);
   }
-  
+}
+
   return (
-      <View style={{ flex: 1, position: 'relative', backgroundColor: '#f4f4f4' }}>
-        <View style={styles.legendToggleButton}>
-          <TouchableOpacity onPress={toggleDropdown}>
-            <Image source={configIcon} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
-          </TouchableOpacity>
-        </View>
+    <View style={{ flex: 1, backgroundColor: '#f4f4f4' }}>
+      {/* Settings Icon (Top Right) */}
+      <View style={{
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        zIndex: 10000,  // high zIndex
+        padding: 10
+      }}>
+        <TouchableOpacity onPress={() => {
+          console.log("Settings icon tapped");
+          setDropdownVisible(true);
+        }}>
+          <Image source={configIcon} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
+        </TouchableOpacity>
+      </View>
 
-        
-
-        {dropdownVisible && (
-          <Modal transparent={true} animationType="fade" visible={dropdownVisible} onRequestClose={() => setDropdownVisible(false)}>
-            <TouchableWithoutFeedback onPress={() => setDropdownVisible(false)}>
-              <View style={styles.dropdownOverlay}>
+      {/* Modal Dropdown */}
+      {dropdownVisible && (
+        <Modal
+          transparent
+          animationType="fade"
+          visible={dropdownVisible}
+          onRequestClose={() => setDropdownVisible(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setDropdownVisible(false)}>
+            <View style={styles.dropdownOverlay}>
+              <TouchableWithoutFeedback onPress={() => {}}>
                 <View style={styles.dropdownMenu}>
+                  <Text style={styles.legendTitle}>Legend </Text>
+<View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around', marginBottom: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      const newPlots = { ...visiblePlots };
+      Object.keys(data).forEach(key => {
+        if (!['Probality_Space', 'Probality_Space_high', 'Probality_Space_low'].includes(key)) {
+          newPlots[key] = true;
+        }
+      });
+      setVisiblePlots(newPlots);
+    }}
+    style={{
+      backgroundColor: '#e6f0ff',
+      paddingVertical: 3,
+      paddingHorizontal: 2,
+      borderRadius: 6,
+      marginBottom: 5,
+      width: '90%',
+      alignItems: 'center',
+    }}
+  >
+    <Text style={{ fontSize: 13, fontWeight: '600', textAlign: 'center' }}>
+      Select All
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    onPress={() => {
+      const newPlots = { ...visiblePlots };
+      Object.keys(data).forEach(key => {
+        if (!['Probality_Space', 'Probality_Space_high', 'Probality_Space_low'].includes(key)) {
+          newPlots[key] = false;
+        }
+      });
+      setVisiblePlots(newPlots);
+    }}
+    style={{
+      backgroundColor: '#fff3f3',
+      paddingVertical: 3,
+      paddingHorizontal: 2,
+      borderRadius: 6,
+      width: '90%',
+      alignItems: 'center',
+    }}
+  >
+    <Text style={{ fontSize: 13, fontWeight: '600', textAlign: 'center' }}>
+      Unselect All
+    </Text>
+  </TouchableOpacity>
+</View>
+
+                  {/* Group toggle */}
                   <TouchableOpacity
                     style={[
                       styles.dropdownItem,
-                      (visiblePlots['Probality_Space_high'] && visiblePlots['Probality_Space_low'] && visiblePlots['Probality_Space']) ? styles.dropdownItemSelected : null,
+                      (visiblePlots['Probality_Space_high'] &&
+                        visiblePlots['Probality_Space_low'] &&
+                        visiblePlots['Probality_Space']) ? styles.dropdownItemSelected : null
                     ]}
                     onPress={() => handlePlotToggle(null, true)}
                   >
-                    <Text style={styles.dropdownItemText}>Probality Space</Text>
+                    <Text style={styles.dropdownItemText}>Probability Space</Text>
                   </TouchableOpacity>
-                  {Object.keys(data).filter(key => !['Probality_Space_high', 'Probality_Space_low', 'Probality_Space'].includes(key)).map(key => (
-                    <TouchableOpacity
-                      key={key}
-                      style={[styles.dropdownItem, visiblePlots[key] ? styles.dropdownItemSelected : null]}
-                      onPress={() => handlePlotToggle(key)}
-                    >
-                      <Text style={styles.dropdownItemText}>{key}</Text>
-                    </TouchableOpacity>
-                  ))}
+
+                  {/* Individual toggles */}
+                  {Object.keys(data)
+                    .filter(key => !['Probality_Space_high', 'Probality_Space_low', 'Probality_Space'].includes(key))
+                    .map((key, index) => (
+                      <TouchableOpacity
+                        key={key}
+                        style={[
+                          styles.dropdownItem,
+                          visiblePlots[key] ? styles.dropdownItemSelected : null
+                        ]}
+                        onPress={() => handlePlotToggle(key)}
+                      >
+                        <Text style={styles.dropdownItemText}>{key}</Text>
+                      </TouchableOpacity>
+                    ))}
                 </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </Modal>
-        )}
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
+
 
         <ScrollView horizontal style={styles.container} contentContainerStyle={styles.contentContainer}>
           {Object.keys(data).length > 0 && (
@@ -335,8 +431,8 @@ const GraphView = ({ siteId }) => {
                   ))}
 
                   {/* Axis Labels */}
-                  <SvgText x={screenWidth / 2} y={screenHeight - 10} textAnchor="middle" fontSize={14} fontWeight="bold">Date</SvgText>
-                  <SvgText x={-screenHeight / 2} y={20} textAnchor="middle" fontSize={14} fontWeight="bold" rotation={-90}>Highest Count (cfu/100 ml)</SvgText>
+                  <SvgText x={screenWidth / 2} y={screenHeight - 10} textAnchor="middle" fontSize={16} fontWeight="600">Date</SvgText>
+                  <SvgText x={-screenHeight / 2} y={20} textAnchor="middle" fontSize={16} fontWeight="600" rotation={-90}>Highest Count</SvgText>
 
                   {/* Area Plot */}
                   {areaPlotData?.length > 0 && (
@@ -357,7 +453,32 @@ const GraphView = ({ siteId }) => {
                   {/* Vertical Today Markers */}
                   <Line x1={xScale(earlierTodayFormatted)} y1={chartPadding.top} x2={xScale(earlierTodayFormatted)} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
                   <Line x1={xScale(laterTodayFormatted)} y1={chartPadding.top} x2={xScale(laterTodayFormatted)} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
-                </Svg>
+                  </Svg>
+                  <Text style={[styles.legendTitle, { marginTop: 8 }]}>Legend (Tap to show/hide):</Text>
+
+                  <View style={styles.bottomLegendContainer}>
+                    {Object.keys(data)
+                      .filter(key => !['Probality_Space_high', 'Probality_Space_low', 'Probality_Space'].includes(key))
+                      .map((key, index) => {
+                        const color = colors[index % colors.length];
+                        const isActive = visiblePlots[key];
+
+                        return (
+                          <TouchableOpacity
+                            key={key}
+                            onPress={() => handlePlotToggle(key)}
+                            style={[
+                              styles.legendPill,
+                              { backgroundColor: isActive ? color : '#ccc' }
+                            ]}
+                          >
+                            <Text style={styles.legendPillText}>{key}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                  </View>
+
+
               </Animated.View>
             </PinchGestureHandler>
           )}

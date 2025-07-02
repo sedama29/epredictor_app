@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10, // Add horizontal padding to the selected value
   },
   pickerButton: {
-    height: 40, // Make the button taller
+    // height: 40, // Make the button taller
     // width: '100%', // Wider button (you can adjust if needed)
     // backgroundColor: '#ffffff', // Light background so it's visible
     // // borderRadius: 8, // Rounded corners
@@ -154,7 +154,7 @@ export const styles = StyleSheet.create({
 
   modalView: {
     flex: 1,
-    marginTop: 40,
+    // marginTop: 40,
     padding:20,
     borderRadius: 5,
   },
@@ -168,10 +168,11 @@ export const styles = StyleSheet.create({
     // fontFamily: 'Helvetica',
   },
   alertButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 1,
+    paddingVertical: 2,
+    paddingHorizontal: 2,
+    alignSelf: 'flex-end',
+    marginTop: 2,
+    marginRight: 2,
   },
   alertText: {
     color: 'red',
