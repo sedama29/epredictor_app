@@ -126,7 +126,10 @@ import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import ImageZoom from 'react-native-image-pan-zoom';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
-
+const screen = Dimensions.get('window');
+const imageWidth = screen.width;
+const aspectRatio = 1.5; // Same as your styles.imageStyle
+const imageHeight = imageWidth / aspectRatio;
 const Home = () => {
   const [siteOptionsV2, setSiteOptions] = useState([]);
   const [selectedSite, setSelectedSite] = useState();
@@ -1820,6 +1823,7 @@ const map_tree = {
   const [routes, setRoutes] = useState([
     { key: 'observed', title: `Observed (${observedData.length})` },
     { key: 'predicted', title: `Predicted (${predictedData.length})` },
+    { key: 'delayed', title: `Delayed Deliveries (${delayedData.length})` },
   ]);
 
   const csvToJson = (csv) => {
@@ -1880,6 +1884,20 @@ const map_tree = {
       if (storedDelayed) setDelayedData(JSON.parse(storedDelayed));
     }
   };
+  const handleOpenMap = () => {
+    if (selectedSite && coordsDictV2[selectedSite]) {
+      const { lat, long } = coordsDictV2[selectedSite];
+      const url = Platform.select({
+        ios: `http://maps.apple.com/?ll=${lat},${long}`,
+        android: `geo:${lat},${long}?q=${lat},${long}`,
+      });
+  
+      Linking.openURL(url).catch(err => {
+        console.error('❌ Error opening maps:', err);
+        Alert.alert('Error', 'Unable to open map application.');
+      });
+    }
+  };
   
 
 useEffect(() => {
@@ -1913,7 +1931,7 @@ useEffect(() => {
         setDelayedData(delayedData);
       }
 
-      setTotalCount(observedData.length + predictedData.length);
+      setTotalCount(observedData.length + predictedData.length + delayedData.length);
     }
   };
 
@@ -1921,8 +1939,9 @@ useEffect(() => {
 }, []);
 
 
-  const ObservedTab = () => (
-    <ScrollView>
+const ObservedTab = () => (
+  <ScrollView>
+    <View style={{ paddingHorizontal: 16 }}>
       {observedData.map((item, idx) => (
         <Text key={idx} style={styles.bulletText}>
           • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
@@ -1932,11 +1951,13 @@ useEffect(() => {
           </Text>
         </Text>
       ))}
-    </ScrollView>
-  );
+    </View>
+  </ScrollView>
+);
 
-  const PredictedTab = () => (
-    <ScrollView>
+const PredictedTab = () => (
+  <ScrollView>
+    <View style={{ paddingHorizontal: 16 }}>
       {predictedData.map((item, idx) => {
         const level = item.eCount < 104 ? '>35' : '>104';
         return (
@@ -1949,19 +1970,23 @@ useEffect(() => {
           </Text>
         );
       })}
-    </ScrollView>
-  );
+    </View>
+  </ScrollView>
+);
 
-  const DelayedTab = () => (
-    <ScrollView>
+const DelayedTab = () => (
+  <ScrollView>
+    <View style={{ paddingHorizontal: 16 }}>
       {delayedData.map((item, idx) => (
         <Text key={idx} style={styles.bulletText}>
           • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
           {' '}The last observed data is on {item.last_date}.
         </Text>
       ))}
-    </ScrollView>
-  );
+    </View>
+  </ScrollView>
+);
+
   
 
   useEffect(() => {
@@ -2063,9 +2088,11 @@ useEffect(() => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
-        <Text style={styles.alertText}>({totalCount}) Alert!</Text>
-      </TouchableOpacity>
+    <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
+      <Text style={styles.alertText}>Alert!</Text>
+      <Text style={styles.alertText}>({totalCount})</Text>
+    </TouchableOpacity>
+
 
       <Modal
         animationType="slide"
@@ -2105,7 +2132,7 @@ useEffect(() => {
                   styles.dropdownContainer,
                   {
                     position: 'absolute',
-                    top: buttonLayout.y + buttonLayout.height + insets.top + 8,
+                    top: buttonLayout.y + buttonLayout.height + 8,
                     left: buttonLayout.x,
                     width: buttonLayout.width,
                   },
@@ -2180,12 +2207,27 @@ useEffect(() => {
           </SafeAreaView>
         )}
 
-        <SafeAreaView style={styles.container_image}>
-          {imageUrl && <Image source={{ uri: imageUrl }} style={styles.imageStyle} />}
-        </SafeAreaView>
+      <SafeAreaView style={styles.container_image}>
+        {imageUrl && (
+          <ImageZoom
+            cropWidth={imageWidth}
+            cropHeight={imageHeight}
+            imageWidth={imageWidth}
+            imageHeight={imageHeight}
+          >
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.imageStyle}
+              resizeMode="contain"
+            />
+          </ImageZoom>
+        )}
       </SafeAreaView>
 
-      <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Contact</Text>
+
+      </SafeAreaView>
+
+      <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Contacts</Text>
       <SafeAreaView>
         <ScrollView contentContainerStyle={styles.container_contact}>
           {selectedSite && <ContactDetailsView details={contactDetailsV3[selectedSite]} />}

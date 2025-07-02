@@ -168,11 +168,10 @@ export const styles = StyleSheet.create({
     // fontFamily: 'Helvetica',
   },
   alertButton: {
-    paddingVertical: 2,
-    paddingHorizontal: 2,
-    alignSelf: 'flex-end',
-    marginTop: 2,
-    marginRight: 2,
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1
   },
   alertText: {
     color: 'red',

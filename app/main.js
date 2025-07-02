@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useColorScheme,
   Image,
@@ -6,24 +6,41 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
-  View
+  View,
+  ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { styles } from './style/style_index';
 import { SignInWithGoogle } from './Login';
+import './firebaseInit'; // 🔁 ensures Firebase is initialized
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 function LoginPage() {
   const isDarkMode = useColorScheme() === 'dark';
   const navigation = useNavigation();
+  const auth = getAuth();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  // Determine if the device is small (e.g., older phones)
   const { height: screenHeight } = Dimensions.get('window');
   const isSmallDevice = screenHeight <= 640;
+
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.replace('DrawerNavigator'); // ✅ auto-login
+      } else {
+        setCheckingAuth(false); // show login screen
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleSignIn = async () => {
     try {
@@ -36,6 +53,13 @@ function LoginPage() {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container]}>
@@ -69,13 +93,12 @@ function LoginPage() {
         />
       </TouchableOpacity>
 
-     <Text style={[styles.agreementText, isSmallDevice && { marginTop: 30 }]}>
-          I agree to the{' '}
-          <Text style={styles.hyperlink} onPress={() => navigation.navigate('Disclaimer')}>
-            Terms and Conditions
-          </Text>
+      <Text style={[styles.agreementText, isSmallDevice && { marginTop: 30 }]}>
+        I agree to the{' '}
+        <Text style={styles.hyperlink} onPress={() => navigation.navigate('Disclaimer')}>
+          Terms and Conditions
         </Text>
-
+      </Text>
     </SafeAreaView>
   );
 }

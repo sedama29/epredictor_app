@@ -18,11 +18,11 @@ const CustomHeader = ({ title, showHeader, onOpenDrawer }) => {
 
   return (
     <SafeAreaView style={{
-      height: Platform.OS === 'ios' ? 80 : 50, 
+      height: Platform.OS === 'ios' ? 100 : 50, 
       backgroundColor: 'white',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: Platform.OS === 'ios' ? 40 : 0,
+      paddingTop: Platform.OS === 'ios' ? 70 : 0,
     }}>
       <TouchableOpacity
         onPress={onOpenDrawer}
