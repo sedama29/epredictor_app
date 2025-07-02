@@ -126,7 +126,10 @@ import { Zoomable } from '@likashefqet/react-native-image-zoom';
 import ImageZoom from 'react-native-image-pan-zoom';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
-
+const screen = Dimensions.get('window');
+const imageWidth = screen.width;
+const aspectRatio = 1.5; // Same as your styles.imageStyle
+const imageHeight = imageWidth / aspectRatio;
 const Home = () => {
   const [siteOptionsV2, setSiteOptions] = useState([]);
   const [selectedSite, setSelectedSite] = useState();
@@ -2063,9 +2066,11 @@ useEffect(() => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
-        <Text style={styles.alertText}>({totalCount}) Alert!</Text>
-      </TouchableOpacity>
+    <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
+      <Text style={styles.alertText}>Alert!</Text>
+      <Text style={styles.alertText}>({totalCount})</Text>
+    </TouchableOpacity>
+
 
       <Modal
         animationType="slide"
@@ -2105,7 +2110,7 @@ useEffect(() => {
                   styles.dropdownContainer,
                   {
                     position: 'absolute',
-                    top: buttonLayout.y + buttonLayout.height + insets.top + 8,
+                    top: buttonLayout.y + buttonLayout.height + 8,
                     left: buttonLayout.x,
                     width: buttonLayout.width,
                   },
@@ -2180,12 +2185,27 @@ useEffect(() => {
           </SafeAreaView>
         )}
 
-        <SafeAreaView style={styles.container_image}>
-          {imageUrl && <Image source={{ uri: imageUrl }} style={styles.imageStyle} />}
-        </SafeAreaView>
+      <SafeAreaView style={styles.container_image}>
+        {imageUrl && (
+          <ImageZoom
+            cropWidth={imageWidth}
+            cropHeight={imageHeight}
+            imageWidth={imageWidth}
+            imageHeight={imageHeight}
+          >
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.imageStyle}
+              resizeMode="contain"
+            />
+          </ImageZoom>
+        )}
       </SafeAreaView>
 
-      <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Contact</Text>
+
+      </SafeAreaView>
+
+      <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Contacts</Text>
       <SafeAreaView>
         <ScrollView contentContainerStyle={styles.container_contact}>
           {selectedSite && <ContactDetailsView details={contactDetailsV3[selectedSite]} />}

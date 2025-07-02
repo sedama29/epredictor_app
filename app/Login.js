@@ -75,7 +75,7 @@ export const SignInWithGoogle = async () => {
     await signInWithCredential(auth, credential);
 
     // ✅ Optional cleanup
-    await GoogleSignin.revokeAccess();
+    // await GoogleSignin.revokeAccess();
 
     return true;
   } catch (error) {
