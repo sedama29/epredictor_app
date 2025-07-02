@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, StyleSheet, View, Button, Linking } from 'react-native';
+import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, StyleSheet, View, Button, Linking, Platform } from 'react-native';
 import axios from 'axios';
 import { styles } from './style/style_home';
 import Data90DaysView from './data/Data90DaysView';
@@ -1716,14 +1716,15 @@ const map_tree = {
   const handleOpenMap = () => {
     if (selectedSite && coordsDictV2[selectedSite]) {
       const { lat, long } = coordsDictV2[selectedSite];
+
       const url = Platform.select({
-        ios: `http://maps.apple.com/?ll=${lat},${long}`,
-        android: `geo:${lat},${long}?q=${lat},${long}`,
+        ios: `http://maps.apple.com/?ll=${lat},${long}`, // Apple Maps
+        android: `geo:${lat},${long}?q=${lat},${long}`,   // Native Maps on Android
       });
 
-      Linking.openURL(url).catch(err => {
-        console.error('❌ Error opening maps:', err);
-        Alert.alert('Error', 'Unable to open map application.');
+      Linking.openURL(url).catch((err) => {
+        console.error('Error opening map:', err);
+        Alert.alert('Error', 'Unable to open the map application.');
       });
     }
   };
@@ -2195,7 +2196,7 @@ useEffect(() => {
 
       <SafeAreaView style={styles.container_location}>
           {selectedSite && coordsDictV2[selectedSite] && (
-            <View style={{ paddingBottom: 10, paddingHorizontal: 2 }}>
+            <View style={{ paddingBottom: 5, paddingHorizontal: 2 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View>
                   <Text style={{ fontSize: 12 }}>
@@ -2215,6 +2216,8 @@ useEffect(() => {
                     paddingVertical: 6,
                     paddingHorizontal: 10,
                     borderRadius: 6,
+                    marginTop: 5,
+                    marginBottom: 5,
                   }}
                 >
                   <Text style={{ color: '#333', fontSize: 12, fontWeight: '500' }}>
