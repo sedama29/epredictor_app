@@ -5,6 +5,7 @@ import Home from './home';
 import About from './legend/About';
 import Tglo from './legend/Tglo';
 import CustomHeader from './CustomHeader';
+import LogoutScreen from './LogoutScreen'; // ✅ Import the logout screen
 
 const Drawer = createDrawerNavigator();
 
@@ -25,6 +26,7 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="About..." component={About} />
       <Drawer.Screen name="Texas General Land Office" component={Tglo} />
+      <Drawer.Screen name="Logout" component={LogoutScreen} /> 
     </Drawer.Navigator>
   );
 };

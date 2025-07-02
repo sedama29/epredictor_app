@@ -1,28 +1,10 @@
+// Login.js
 import { Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import {
-  initializeAuth,
-  getReactNativePersistence,
-  GoogleAuthProvider,
-  signInWithCredential
-} from 'firebase/auth';
-import { getDatabase, ref, get } from 'firebase/database';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import firebaseConfig from './firebaseConfig'; // 🔁 your firebase config
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { ref, get } from 'firebase/database';
+import { auth, database } from './firebaseInit'; // ✅ Use shared instance
 
-// ✅ Initialize Firebase App (singleton)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-// ✅ Set up Auth with AsyncStorage persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
-
-// ✅ Set up Realtime Database
-const database = getDatabase(app);
-
-// ✅ Configure Google Sign-In
 GoogleSignin.configure({
   webClientId: '159943127152-k6t7v7u50u9upu0a9f1v9pm0k0os48pr.apps.googleusercontent.com',
   offlineAccess: true,
@@ -31,10 +13,8 @@ GoogleSignin.configure({
 
 export const SignInWithGoogle = async () => {
   try {
-    // ✅ Ensure Google Play Services
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-    // ✅ Begin Sign-In
     const userInfo = await GoogleSignin.signIn();
 
     if (
@@ -48,20 +28,12 @@ export const SignInWithGoogle = async () => {
 
     const { idToken, user } = userInfo.data;
 
-    if (!idToken) {
-      throw new Error('Missing idToken from Google sign-in');
-    }
-
-    if (!user || !user.email) {
-      throw new Error('Missing user email in Google sign-in');
-    }
+    if (!idToken) throw new Error('Missing idToken from Google sign-in');
+    if (!user || !user.email) throw new Error('Missing user email in Google sign-in');
 
     const email = user.email.toLowerCase();
-
-    // ✅ Firebase Credential
     const credential = GoogleAuthProvider.credential(idToken);
 
-    // ✅ Check DB for email access
     const emailKey = email.replace(/\./g, ',');
     const emailRef = ref(database, `/emails/${emailKey}`);
     const snapshot = await get(emailRef);
@@ -71,12 +43,7 @@ export const SignInWithGoogle = async () => {
       return false;
     }
 
-    // ✅ Sign in to Firebase
     await signInWithCredential(auth, credential);
-
-    // ✅ Optional cleanup
-    // await GoogleSignin.revokeAccess();
-
     return true;
   } catch (error) {
     console.error('❌ Sign-in error:', error.message, error);
