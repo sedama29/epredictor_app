@@ -3,7 +3,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginPage from './app/main';
-import Disclaimer from './app/disclamier';
+import Disclaimer from './app/disclaimer';
 import DrawerNavigator from './app/drawer';
 import { enableScreens } from 'react-native-screens';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

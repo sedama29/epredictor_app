@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, StyleSheet, View } from 'react-native';
+import { ScrollView, SafeAreaView, Text, Image, Dimensions, Modal, TouchableOpacity, FlatList, ImageBackground, StyleSheet, View, Button, Linking, Platform } from 'react-native';
 import axios from 'axios';
 import { styles } from './style/style_home';
 import Data90DaysView from './data/Data90DaysView';
@@ -1713,7 +1713,29 @@ const map_tree = {
   };
   
 
+
+  const handleOpenMap = () => {
+    if (selectedSite && coordsDictV2[selectedSite]) {
+      const { lat, long } = coordsDictV2[selectedSite];
   
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(long);
+  
+      if (!latitude || !longitude) {
+        Alert.alert('Invalid location', 'Missing or invalid coordinates.');
+        return;
+      }
+  
+      const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  
+      Linking.openURL(url).catch((err) => {
+        console.error('❌ Failed to open Google Maps:', err);
+        Alert.alert('Error', 'Unable to open Google Maps.');
+      });
+    }
+  };
+  
+
 
   const findNextMap = (currentKey, x, y) => {
     const node = map_tree[currentKey];
@@ -1866,7 +1888,7 @@ const map_tree = {
       setPredictedData(predicted);
       setDelayedData(delayed);
   
-      setTotalCount(observed.length + predicted.length);
+      setTotalCount(observed.length + predicted.length + delayed.length);
   
       AsyncStorage.setItem('observedData', JSON.stringify(observed));
       AsyncStorage.setItem('predictedData', JSON.stringify(predicted));
@@ -1882,20 +1904,6 @@ const map_tree = {
       if (storedObserved) setObservedData(JSON.parse(storedObserved));
       if (storedPredicted) setPredictedData(JSON.parse(storedPredicted));
       if (storedDelayed) setDelayedData(JSON.parse(storedDelayed));
-    }
-  };
-  const handleOpenMap = () => {
-    if (selectedSite && coordsDictV2[selectedSite]) {
-      const { lat, long } = coordsDictV2[selectedSite];
-      const url = Platform.select({
-        ios: `http://maps.apple.com/?ll=${lat},${long}`,
-        android: `geo:${lat},${long}?q=${lat},${long}`,
-      });
-  
-      Linking.openURL(url).catch(err => {
-        console.error('❌ Error opening maps:', err);
-        Alert.alert('Error', 'Unable to open map application.');
-      });
     }
   };
   
@@ -1931,61 +1939,60 @@ useEffect(() => {
         setDelayedData(delayedData);
       }
 
-      setTotalCount(observedData.length + predictedData.length + delayedData.length);
+      setTotalCount(observedData.length + predictedData.length);
     }
   };
 
   checkAndFetchData();
 }, []);
 
-
-const ObservedTab = () => (
-  <ScrollView>
-    <View style={{ paddingHorizontal: 16 }}>
-      {observedData.map((item, idx) => (
-        <Text key={idx} style={styles.bulletText}>
-          • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
-          {' '}The observed count is {item.eCount} cfu/100ml on {item.date} and this count is {' '}
-          <Text style={[styles.levelText, { color: item.level === 'MEDIUM' ? 'orange' : item.level === 'HIGH' ? 'red' : 'black' }]}>
-            {item.level}
-          </Text>
-        </Text>
-      ))}
-    </View>
-  </ScrollView>
-);
-
-const PredictedTab = () => (
-  <ScrollView>
-    <View style={{ paddingHorizontal: 16 }}>
-      {predictedData.map((item, idx) => {
-        const level = item.eCount < 104 ? '>35' : '>104';
-        return (
+  const ObservedTab = () => (
+    <ScrollView>
+      <View style={{ paddingHorizontal: 16 }}>
+        {observedData.map((item, idx) => (
           <Text key={idx} style={styles.bulletText}>
             • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
-            {' '}The count is predicted by {item.model_id} to be {' '}
-            <Text style={{ color: level === '>35' ? 'orange' : 'red' }}>
-              {level}
-            </Text> cfu/100ml on {item.date}
+            {' '}The observed count is {item.eCount} cfu/100ml on {item.date} and this count is {' '}
+            <Text style={[styles.levelText, { color: item.level === 'MEDIUM' ? 'orange' : item.level === 'HIGH' ? 'red' : 'black' }]}>
+              {item.level}
+            </Text>
           </Text>
-        );
-      })}
-    </View>
-  </ScrollView>
-);
+        ))}
+      </View>
+    </ScrollView>
+  );
 
-const DelayedTab = () => (
-  <ScrollView>
-    <View style={{ paddingHorizontal: 16 }}>
-      {delayedData.map((item, idx) => (
-        <Text key={idx} style={styles.bulletText}>
-          • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
-          {' '}The last observed data is on {item.last_date}.
-        </Text>
-      ))}
-    </View>
-  </ScrollView>
-);
+  const PredictedTab = () => (
+    <ScrollView>
+      <View style={{ paddingHorizontal: 16 }}>
+        {predictedData.map((item, idx) => {
+          const level = item.eCount < 104 ? '>35' : '>104';
+          return (
+            <Text key={idx} style={styles.bulletText}>
+              • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
+              {' '}The count is predicted by {item.model_id} to be {' '}
+              <Text style={{ color: level === '>35' ? 'orange' : 'red' }}>
+                {level}
+              </Text> cfu/100ml on {item.date}
+            </Text>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+
+  const DelayedTab = () => (
+    <ScrollView>
+      <View style={{ paddingHorizontal: 16 }}>
+        {delayedData.map((item, idx) => (
+          <Text key={idx} style={styles.bulletText}>
+            • <Text style={styles.boldText}>{item.site_name} ({item.site_id}) :</Text>
+            {' '}The last observed data is on {item.last_date}.
+          </Text>
+        ))}
+      </View>
+    </ScrollView>
+  );
 
   
 
@@ -2087,7 +2094,7 @@ const DelayedTab = () => (
   }, [selectedSite]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+  <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
     <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
       <Text style={styles.alertText}>Alert!</Text>
       <Text style={styles.alertText}>({totalCount})</Text>
@@ -2193,19 +2200,43 @@ const DelayedTab = () => (
       </SafeAreaView>
 
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Location</Text>
+
       <SafeAreaView style={styles.container_location}>
-        {selectedSite && coordsDictV2[selectedSite] && (
-          <SafeAreaView style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: 10 }}>
-            <Text style={{ fontSize: 12 }}>
-              <Text style={{ fontWeight: 'bold' }}>Latitude: </Text>
-              <Text>{coordsDictV2[selectedSite].lat}</Text>
-            </Text>
-            <Text style={{ fontSize: 12, paddingLeft: 50 }}>
-              <Text style={{ fontWeight: 'bold' }}>Longitude: </Text>
-              <Text>{coordsDictV2[selectedSite].long}</Text>
-            </Text>
-          </SafeAreaView>
-        )}
+          {selectedSite && coordsDictV2[selectedSite] && (
+            <View style={{ paddingBottom: 5, paddingHorizontal: 2 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View>
+                  <Text style={{ fontSize: 12 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Latitude: </Text>
+                    {coordsDictV2[selectedSite].lat}
+                  </Text>
+                  <Text style={{ fontSize: 12 }}>
+                    <Text style={{ fontWeight: 'bold' }}>Longitude: </Text>
+                    {coordsDictV2[selectedSite].long}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleOpenMap}
+                  style={{
+                    backgroundColor: '#ccc',
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                    borderRadius: 6,
+                    marginTop: 5,
+                    marginBottom: 5,
+                  }}
+                >
+                  <Text style={{ color: '#333', fontSize: 12, fontWeight: '500' }}>
+                    Show in Maps
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+
+
 
       <SafeAreaView style={styles.container_image}>
         {imageUrl && (
@@ -2282,4 +2313,4 @@ const DelayedTab = () => (
   );
 };
 
-export default Home
+export default Home 

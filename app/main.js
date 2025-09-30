@@ -40,7 +40,7 @@ function LoginPage() {
     });
 
     return unsubscribe;
-  }, []);
+  }, [auth, navigation]);
 
   const handleSignIn = async () => {
     try {
