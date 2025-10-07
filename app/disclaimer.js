@@ -2,13 +2,14 @@
 import React from 'react';
 import { SafeAreaView, Text, ScrollView, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { getFontSize, getSpacing, scale, isTablet } from './style/responsive';
 
 
 export default function TermsAndConditions() {
     const navigation = useNavigation();
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Text style={styles.text1}>
                 General Disclaimer
             </Text>
@@ -34,7 +35,7 @@ export default function TermsAndConditions() {
                 Copyright Disclaimer
             </Text>
             <Text style={styles.text2}>
-                Certain content may be owned by the GLO, jointly owned with a third party, or be provided under lease by a third party and may be subject to copyright and other intellectual property rights. GLO does not authorize reproduction,
+                Certain content may be owned by the GLO, Jointly owned with a third party, or be provided under lease by a third party and may be subject to copyright and other intellectual property rights. GLO does not authorize reproduction,
                 distribution, display of, or the creation of derivative works from any part of this web application without approval from the holder of the intellectual property right. You may be liable for any unauthorized copying or disclosure of
                 any copyrighted content on this web application. If you believe that any content on this web application has been used in a way that constitutes copyright infringement, or if you have copyright inquiries, please contact beachwatch@glo.texas.gov.
                 If you believe that copyright infringement has occurred, provide a name and contact information for the complaint, a written description of the alleged infringement, and materials that show the existence of a copyright.
@@ -60,36 +61,53 @@ export default function TermsAndConditions() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 20,
-        padding: 10,
+        backgroundColor: 'white',
+        paddingTop: getSpacing(15),
+        paddingHorizontal: getSpacing(5),
+        paddingBottom: 0,
+    },
+    contentContainer: {
+        paddingTop: getSpacing(30),
+        paddingHorizontal: isTablet() ? getSpacing(40) : getSpacing(20),
+        paddingBottom: getSpacing(30),
     },
     text1: {
-        fontSize: 14,
-        marginBottom: 5,
+        fontSize: getFontSize(16),
+        marginBottom: getSpacing(10),
         fontWeight: 'bold',
+        color: '#333',
+        lineHeight: getFontSize(22),
     },
     text2: {
-        fontSize: 12,
+        fontSize: getFontSize(14),
         fontWeight: 'normal',
         textAlign: 'left',
-        marginBottom: 5,
+        marginBottom: getSpacing(15),
+        color: '#555',
+        lineHeight: getFontSize(20),
     },
     buttonContainer: {
         flexDirection: 'row',    
         justifyContent: 'center', 
         width: '100%',  
-        marginBottom: 10          
+        marginTop: getSpacing(20),
+        marginBottom: getSpacing(20),          
     },
     button: {
         backgroundColor: 'blue',
-        padding: 10,
-        borderRadius: 4,
+        padding: getSpacing(15),
+        borderRadius: 8,
         alignItems: 'center',
-        marginVertical: 20,
-        width:150
+        width: isTablet() ? scale(200) : scale(150),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     buttonText: {
         color: 'white',
-        fontSize: 12,
+        fontSize: getFontSize(16),
+        fontWeight: '600',
     },
 });

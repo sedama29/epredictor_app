@@ -15,6 +15,7 @@ import { styles } from './style/style_index';
 import { SignInWithGoogle } from './Login';
 import './firebaseInit'; // 🔁 ensures Firebase is initialized
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { SignInWithApple } from './Login';
 
 function LoginPage() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -53,6 +54,17 @@ function LoginPage() {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    try {
+      const signInSuccess = await SignInWithApple();
+      if (signInSuccess) {
+        navigation.replace('DrawerNavigator');
+      }
+    } catch (error) {
+      console.error('❌ Apple Sign-in failed:', error);
+    }
+  };
+
   if (checkingAuth) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center' }]}>
@@ -79,7 +91,7 @@ function LoginPage() {
       >
         The Enterococcus Predictor (ep), an AI-enabled system to predict the level of enterococcus
         bacteria for a geographical area, is currently in development. If you are a registered user,
-        please use your Google account to log in. If you are having issues logging in,
+        please use your preferred account to log in. If you are having issues logging in,
         please contact info@enterococcus.today.
       </Text>
 
@@ -90,6 +102,13 @@ function LoginPage() {
             styles.logo2,
             isSmallDevice && { marginBottom: 20 }
           ]}
+        />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={handleAppleSignIn} style={{ marginTop: 10 }}>
+        <Image
+          source={require('../assets/images/btn_apple_signin.png')} // Your Apple button image
+          style={styles.logo2}
         />
       </TouchableOpacity>
 

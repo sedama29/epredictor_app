@@ -1,49 +1,62 @@
 import { StyleSheet } from 'react-native';
+import { getFontSize, getSpacing, scale, verticalScale, isTablet } from './responsive';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'black',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-start', // Start from top instead of center
+    paddingHorizontal: getSpacing(20),
+    paddingVertical: getSpacing(20), // Reduce top padding
   },
   logo: {
-    width: 250,
-    height: 150,
-    marginBottom: 50,
-    marginTop: 150
-  },
-  logo2: {
-    width: 170,
-    height: 50, // Adjust this based on your requirement
+    width: isTablet() ? scale(280) : scale(250),
+    height: isTablet() ? verticalScale(140) : verticalScale(150),
+    marginBottom: isTablet() ? getSpacing(20) : getSpacing(30), // Reduce bottom margin
+    marginTop: isTablet() ? getSpacing(40) : getSpacing(80), // Reduce top margin significantly
     resizeMode: 'contain',
   },
+  logo2: {
+    width: isTablet() ? scale(200) : scale(170),
+    height: isTablet() ? verticalScale(50) : verticalScale(50),
+    resizeMode: 'contain',
+    marginBottom: getSpacing(15), // Reduce margin
+  },
   description: {
-    fontSize: 10,
-    marginBottom: 50,
-    marginLeft: 10,
-    marginRight: 10,
+    fontSize: getFontSize(10),
+    marginBottom: isTablet() ? getSpacing(20) : getSpacing(30), // Reduce margin
+    marginLeft: getSpacing(10),
+    marginRight: getSpacing(10),
     color: 'white',
-    // fontFamily: 'Helvetica',
+    textAlign: 'center',
+    paddingHorizontal: getSpacing(20),
+    lineHeight: getFontSize(14),
   },
   googleButton: {
     backgroundColor: 'blue',
-    padding: 10,
+    padding: getSpacing(10),
     borderRadius: 5,
-    marginBottom: 50,
+    marginBottom: getSpacing(20), // Reduce margin
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    // fontFamily: 'Helvetica',
+    fontSize: getFontSize(16),
   },
   agreementText: {
     textAlign: 'center',
-    marginTop: 50,
-    marginHorizontal: 30,
+    marginTop: isTablet() ? getSpacing(15) : getSpacing(25), // Reduce top margin significantly
+    marginHorizontal: getSpacing(30),
     color: 'white',
+    fontSize: getFontSize(12),
+    lineHeight: getFontSize(16),
+    marginBottom: getSpacing(40), // Add bottom margin to keep it away from bottom
   },
   hyperlink: {
     color: 'blue',
+    fontSize: getFontSize(12),
   },
   pickerAndDotsContainer: {
     flexDirection: 'row',
@@ -52,16 +65,17 @@ export const styles = StyleSheet.create({
   },
 
   agreementContainer: {
-    marginHorizontal: 30,
+    marginHorizontal: getSpacing(30),
     alignItems: 'center',
   },
 
   
   dotsButton: {
-    width: 30,   // Specify the width
-    height: 30,  // Specify the height
+    width: scale(30),
+    height: scale(30),
     justifyContent: 'center',
     alignItems: 'center'
   },
+  
+  
 });
-

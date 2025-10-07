@@ -1,4 +1,7 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
 
 export const styles = StyleSheet.create({
     container: {
@@ -22,11 +25,11 @@ export const styles = StyleSheet.create({
     legendContainer: {
       position: 'absolute',
       top: 40,
-      left: 'auto', // This will make the positioning automatic based on the 'right' value
+      left: 'auto',
       right: 10,
       backgroundColor: 'white',
-      width: 180, // Adjust as needed
-      height: 350, // Adjust as needed
+      width: 180,
+      height: 350,
       padding: 10, 
       borderRadius: 5,
     },
@@ -35,9 +38,8 @@ export const styles = StyleSheet.create({
     legendItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      fontSize: 10, // Reduced font size
-      marginVertical: 2, // Adjusted margin
-      // fontFamily: 'Helvetica',
+      fontSize: 10,
+      marginVertical: 2,
     },
     legendToggleButton: {
       position: 'absolute',
@@ -62,9 +64,10 @@ export const styles = StyleSheet.create({
     },
     dropdownMenu: {
       position: 'absolute',
-      right: 30,
-      top: 220,
-      width: Platform.OS === 'ios' ? 160 : 130,
+      right: isTablet ? 40 : 30,
+      top: isTablet ? 100 : 220,
+      width: isTablet ? 250 : (Platform.OS === 'ios' ? 160 : 130),
+      maxHeight: isTablet ? screenHeight * 0.7 : screenHeight * 0.5,
       backgroundColor: 'white',
       borderRadius: Platform.OS === 'ios' ? 12 : 5,
       ...Platform.select({
@@ -80,6 +83,10 @@ export const styles = StyleSheet.create({
       }),
       borderWidth: Platform.OS === 'ios' ? 0.5 : 0,
       borderColor: Platform.OS === 'ios' ? 'rgba(0,0,0,0.1)' : 'transparent',
+      overflow: 'scroll',
+    },
+    dropdownContent: {
+      paddingVertical: 10,
     },
     dropdownItem: {
       padding: Platform.OS === 'ios' ? 12 : 4,
@@ -95,7 +102,7 @@ export const styles = StyleSheet.create({
     },
     dropdownItemText: {
       color: 'black',
-      fontSize: Platform.OS === 'ios' ? 16 : 10,
+      fontSize: isTablet ? 16 : (Platform.OS === 'ios' ? 16 : 10),
       fontWeight: Platform.OS === 'ios' ? '400' : 'normal',
       textAlign: Platform.OS === 'ios' ? 'left' : 'left',
     },
@@ -144,7 +151,7 @@ export const styles = StyleSheet.create({
     legendTitle: {
       textAlign: 'center',
       fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
-      fontSize: Platform.OS === 'ios' ? 17 : 14,
+      fontSize: isTablet ? 20 : (Platform.OS === 'ios' ? 17 : 14),
       marginTop: Platform.OS === 'ios' ? 16 : 10,
       marginBottom: Platform.OS === 'ios' ? 8 : 4,
       color: Platform.OS === 'ios' ? '#1C1C1E' : '#333',

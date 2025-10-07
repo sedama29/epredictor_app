@@ -4,8 +4,6 @@ import axios from 'axios';
 import * as d3 from 'd3';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Svg, Line, Path, G, Text as SvgText, Rect } from 'react-native-svg';
-import { PinchGestureHandler } from 'react-native-gesture-handler';
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { styles } from '../style/style_graph_view';
 
 const chartPadding = { top: 10, bottom: 45, left: 50, right: 10 };
@@ -47,16 +45,6 @@ const screenWidth = Dimensions.get('window').width;
 
   const colors = ['#0B6623', '#FF5733', '#D7AC00', '#FF6600', '#FFC928', '#FF2868', '#EE4B2B', '#300000', '#E67E22'];
 
-  const scale = useSharedValue(1);
-  const pinchHandler = useAnimatedGestureHandler({
-    onActive: (event) => {
-      scale.value = event.scale;
-    },
-    onEnd: () => {
-      scale.value = withTiming(1);
-    }
-  });
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const toggleDropdown = () => {
     try {
@@ -308,7 +296,7 @@ if (startDate && endDate) {
           <TouchableWithoutFeedback onPress={() => setDropdownVisible(false)}>
             <View style={styles.dropdownOverlay}>
               <TouchableWithoutFeedback onPress={() => {}}>
-                <View style={styles.dropdownMenu}>
+              <ScrollView style={styles.dropdownMenu} showsVerticalScrollIndicator={true}>
                   <Text style={styles.legendTitle}>Legend </Text>
 <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around', marginBottom: 10 }}>
   <TouchableOpacity
@@ -389,7 +377,7 @@ if (startDate && endDate) {
                         <Text style={styles.dropdownItemText}>{key}</Text>
                       </TouchableOpacity>
                     ))}
-                </View>
+                </ScrollView>
               </TouchableWithoutFeedback>
             </View>
           </TouchableWithoutFeedback>
@@ -397,10 +385,27 @@ if (startDate && endDate) {
       )}
 
 
-        <ScrollView horizontal style={styles.container} contentContainerStyle={styles.contentContainer}>
+          <ScrollView 
+            horizontal 
+            style={styles.container} 
+            contentContainerStyle={styles.contentContainer}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            bouncesZoom={false}
+            alwaysBounceHorizontal={false}
+            alwaysBounceVertical={false}
+            maximumZoomScale={1}
+            minimumZoomScale={1}
+            zoomScale={1}
+            scrollsToTop={false}
+            canCancelContentTouches={false}
+            delaysContentTouches={false}
+            directionalLockEnabled={true}
+          >
           {Object.keys(data).length > 0 && (
-            <PinchGestureHandler onGestureEvent={pinchHandler}>
-              <Animated.View style={[{ width: screenWidth, height: screenHeight }, animatedStyle]}>
+            <View>
+            <View style={{ width: screenWidth, height: screenHeight }}>
                 <Svg width={screenWidth} height={screenHeight}   onTouchStart={handleTooltipPress} onTouchEnd={() => { setTimeout(() => setTooltipData(null), 800);}}>
 
                   {/* Background Ranges */}
@@ -479,8 +484,8 @@ if (startDate && endDate) {
                   </View>
 
 
-              </Animated.View>
-            </PinchGestureHandler>
+              </View>
+              </View>
           )}
         </ScrollView>
 

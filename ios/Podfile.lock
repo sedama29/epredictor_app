@@ -17,7 +17,7 @@ PODS:
   - Firebase/Database (11.11.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 11.11.0)
-  - FirebaseAppCheckInterop (11.12.0)
+  - FirebaseAppCheckInterop (11.15.0)
   - FirebaseAuth (11.11.0):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
@@ -27,7 +27,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (< 5.0, >= 3.4)
     - RecaptchaInterop (~> 101.0)
-  - FirebaseAuthInterop (11.12.0)
+  - FirebaseAuthInterop (11.15.0)
   - FirebaseCore (11.11.0):
     - FirebaseCoreInternal (~> 11.11.0)
     - GoogleUtilities/Environment (~> 8.0)
@@ -42,7 +42,7 @@ PODS:
     - FirebaseSharedSwift (~> 11.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - leveldb-library (~> 1.22)
-  - FirebaseSharedSwift (11.12.0)
+  - FirebaseSharedSwift (11.15.0)
   - fmt (11.0.2)
   - glog (0.3.5)
   - Google-Maps-iOS-Utils (6.1.0):
@@ -1796,6 +1796,8 @@ PODS:
     - React-perflogger (= 0.78.0)
     - React-utils (= 0.78.0)
   - RecaptchaInterop (101.0.0)
+  - RNAppleAuthentication (2.4.1):
+    - React-Core
   - RNCAsyncStorage (1.24.0):
     - DoubleConversion
     - glog
@@ -2165,6 +2167,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RecaptchaInterop
+  - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
@@ -2342,6 +2345,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNAppleAuthentication:
+    :path: "../node_modules/@invertase/react-native-apple-authentication"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNFBApp:
@@ -2370,14 +2375,14 @@ SPEC CHECKSUMS:
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 6fe148afcef2e3213e484758e3459609d40d57f5
   Firebase: 6a8f201c61eda24e98f1ce2b44b1b9c2caf525cc
-  FirebaseAppCheckInterop: 73b173e5ec45192e2d522ad43f526a82ad10b852
+  FirebaseAppCheckInterop: 06fe5a3799278ae4667e6c432edd86b1030fa3df
   FirebaseAuth: 783fa4cc0420b0f6eed580721b12d4f0a5306746
-  FirebaseAuthInterop: b583210c039a60ed3f1e48865e1f3da44a796595
+  FirebaseAuthInterop: 7087d7a4ee4bc4de019b2d0c240974ed5d89e2fd
   FirebaseCore: 2321536f9c423b1f857e047a82b8a42abc6d9e2c
   FirebaseCoreExtension: 3a64994969dd05f4bcb7e6896c654eded238e75b
   FirebaseCoreInternal: 31ee350d87b30a9349e907f84bf49ef8e6791e5a
   FirebaseDatabase: d91ea8ab77099cb8dbac6eb0d569ff0d525c4506
-  FirebaseSharedSwift: d2475748a2d2a36242ed13baa34b2acda846c925
+  FirebaseSharedSwift: e17c654ef1f1a616b0b33054e663ad1035c8fd40
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
   Google-Maps-iOS-Utils: 0a484b05ed21d88c9f9ebbacb007956edd508a96
@@ -2453,6 +2458,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 299e99fc57c93edc7c5396ef1a39a3a4d494f25d
   ReactCommon: c8fdbc582b98a07daf201cd95c1da75dd029f3ee
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
+  RNAppleAuthentication: b2d8b5ccba86b5b1e55a1a2e858f7ac6d8a21816
   RNCAsyncStorage: 2118709bfe9c313eba06d0ae7c34592a07de8243
   RNFBApp: b67ded6e4b0a6c0fee5e4f8e75e3a31567949a08
   RNFBAuth: 6aabe6440ba66c82b3c87fc8ebf70d921e5156dd
@@ -2465,6 +2471,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: d89d04d86b5af18317f481166dccc48213d26927
 
-PODFILE CHECKSUM: 6c6c5e718356b1f70ba4f13c9d96c7986fbd01db
+PODFILE CHECKSUM: 45277f54a138308b421db34036b2483188c87555
 
 COCOAPODS: 1.16.2
