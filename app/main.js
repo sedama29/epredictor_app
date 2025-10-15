@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
   View,
-  ActivityIndicator
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -25,8 +26,9 @@ function LoginPage() {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const { height: screenHeight } = Dimensions.get('window');
+  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
   const isSmallDevice = screenHeight <= 640;
+  const isTablet = screenWidth >= 768 || screenHeight >= 1024;
 
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -53,6 +55,7 @@ function LoginPage() {
     }
   };
 
+
   if (checkingAuth) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center' }]}>
@@ -67,19 +70,31 @@ function LoginPage() {
         source={require('../assets/images/BW_Logo.png')}
         style={[
           styles.logo,
-          isSmallDevice && { marginTop: 100, marginBottom: 30 }
+          isSmallDevice && { marginTop: 100, marginBottom: 30 },
+          isTablet && { 
+            width: 350, 
+            height: 210, 
+            marginTop: 200, 
+            marginBottom: 80 
+          }
         ]}
       />
 
       <Text
         style={[
           styles.description,
-          isSmallDevice && { marginBottom: 30 }
+          isSmallDevice && { marginBottom: 30 },
+          isTablet && { 
+            fontSize: 16, 
+            marginBottom: 80, 
+            marginHorizontal: 40,
+            lineHeight: 24
+          }
         ]}
       >
         The Enterococcus Predictor (ep), an AI-enabled system to predict the level of enterococcus
         bacteria for a geographical area, is currently in development. If you are a registered user,
-        please use your Google account to log in. If you are having issues logging in,
+        please use your preferred account to log in If you are having issues logging in,
         please contact info@enterococcus.today.
       </Text>
 
@@ -88,12 +103,26 @@ function LoginPage() {
           source={require('../assets/images/btn_google_signin_dark_normal_web.png')}
           style={[
             styles.logo2,
-            isSmallDevice && { marginBottom: 20 }
+            isSmallDevice && { marginBottom: 20 },
+            isTablet && { 
+              width: 240, 
+              height: 70, 
+              marginBottom: 40 
+            }
           ]}
         />
       </TouchableOpacity>
 
-      <Text style={[styles.agreementText, isSmallDevice && { marginTop: 30 }]}>
+      <Text style={[
+        styles.agreementText, 
+        isSmallDevice && { marginTop: 30 },
+        isTablet && { 
+          fontSize: 16, 
+          marginTop: 80, 
+          marginHorizontal: 60,
+          lineHeight: 22
+        }
+      ]}>
         I agree to the{' '}
         <Text style={styles.hyperlink} onPress={() => navigation.navigate('Disclaimer')}>
           Terms and Conditions

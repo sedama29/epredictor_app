@@ -1,9 +1,9 @@
 // Login.js
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
-import { auth, database } from './firebaseInit'; // ✅ Use shared instance
+import { auth, database } from './firebaseInit';
 
 GoogleSignin.configure({
   webClientId: '159943127152-k6t7v7u50u9upu0a9f1v9pm0k0os48pr.apps.googleusercontent.com',
@@ -46,8 +46,9 @@ export const SignInWithGoogle = async () => {
     await signInWithCredential(auth, credential);
     return true;
   } catch (error) {
-    console.error('❌ Sign-in error:', error.message, error);
-    Alert.alert('Sign-In Failed', error.message || 'An unexpected error occurred.');
+    console.error('❌ Google Sign-In error:', error.message, error);
+    Alert.alert('Google Sign-In Failed', error.message || 'An unexpected error occurred during Google Sign-In.');
     return false;
   }
 };
+

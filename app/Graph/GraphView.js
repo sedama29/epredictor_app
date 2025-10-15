@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions,  TouchableWithoutFeedback, Image } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Modal, Dimensions,  TouchableWithoutFeedback, Image, Platform } from 'react-native';
 import axios from 'axios';
 import * as d3 from 'd3';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Svg, Line, Path, G, Text as SvgText, Rect } from 'react-native-svg';
-import { PinchGestureHandler } from 'react-native-gesture-handler';
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
+import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming, runOnJS } from 'react-native-reanimated';
 import { styles } from '../style/style_graph_view';
 
 const chartPadding = { top: 10, bottom: 45, left: 50, right: 10 };
 const configIcon = require('../../assets/images/map_images/configuration_icon.jpg');
 
-const GraphView = ({ siteId }) => {
+const GraphView = ({ siteId, onResetRef }) => {
   const [data, setData] = useState({});
   const [visiblePlots, setVisiblePlots] = useState({});
   const [startDate, setStartDate] = useState(null);
@@ -20,6 +20,15 @@ const GraphView = ({ siteId }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [tooltipData, setTooltipData] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  // Tablet detection inside component
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height;
+  const isTablet = screenWidth >= 768 || screenHeight >= 1024;
+  
+  // Keep graph height fixed at 400px for all devices
+  const graphHeight = 400;
+  
   useEffect(() => {
   }, [tooltipData]);
   useEffect(() => {
@@ -33,10 +42,7 @@ const GraphView = ({ siteId }) => {
     const widthPerDay = windowWidth < 400 ? 25 : windowWidth < 600 ? 20 : 15;
   const chartWidth = ((endDate - startDate) / (1000 * 60 * 60 * 24)) * widthPerDay + chartPadding.left + chartPadding.right;
 
-const screenWidth = Dimensions.get('window').width;
-
-  const screenHeight = 400;
-  const formatDate = d3.timeFormat("%d %b");
+  const formatDate = d3.timeFormat("%m/%d");
   const formatDateFull = d3.timeFormat("%Y-%m-%d %H:%M:%S");
 
   const today = new Date();
@@ -47,16 +53,57 @@ const screenWidth = Dimensions.get('window').width;
 
   const colors = ['#0B6623', '#FF5733', '#D7AC00', '#FF6600', '#FFC928', '#FF2868', '#EE4B2B', '#300000', '#E67E22'];
 
-  const scale = useSharedValue(1);
+  // Zoom and pan state for chart content only
+  const chartScale = useSharedValue(1);
+  const chartTranslateX = useSharedValue(0);
+  const chartTranslateY = useSharedValue(0);
+  const lastChartScale = useSharedValue(1);
+  const lastChartTranslateX = useSharedValue(0);
+  const lastChartTranslateY = useSharedValue(0);
+
   const pinchHandler = useAnimatedGestureHandler({
+    onStart: () => {
+      lastChartScale.value = chartScale.value;
+    },
     onActive: (event) => {
-      scale.value = event.scale;
+      chartScale.value = Math.max(0.5, Math.min(3, lastChartScale.value * event.scale));
     },
     onEnd: () => {
-      scale.value = withTiming(1);
+      lastChartScale.value = chartScale.value;
     }
   });
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const panHandler = useAnimatedGestureHandler({
+    onStart: () => {
+      lastChartTranslateX.value = chartTranslateX.value;
+      lastChartTranslateY.value = chartTranslateY.value;
+    },
+    onActive: (event) => {
+      chartTranslateX.value = lastChartTranslateX.value + event.translationX;
+      chartTranslateY.value = lastChartTranslateY.value + event.translationY;
+    },
+    onEnd: () => {
+      lastChartTranslateX.value = chartTranslateX.value;
+      lastChartTranslateY.value = chartTranslateY.value;
+    }
+  });
+
+  const chartAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: chartScale.value },
+      { translateX: chartTranslateX.value },
+      { translateY: chartTranslateY.value }
+    ]
+  }));
+
+  const resetZoom = () => {
+    chartScale.value = withTiming(1);
+    chartTranslateX.value = withTiming(0);
+    chartTranslateY.value = withTiming(0);
+    lastChartScale.value = 1;
+    lastChartTranslateX.value = 0;
+    lastChartTranslateY.value = 0;
+  };
 
   const toggleDropdown = () => {
     try {
@@ -139,6 +186,20 @@ const filteredData = parsedData.filter(d => d.date); // keep all rows with valid
     if (siteId) fetchData();
   }, [siteId]);
 
+  // Reset zoom when siteId changes
+  useEffect(() => {
+    if (siteId) {
+      resetZoom();
+    }
+  }, [siteId]);
+
+  // Expose reset function to parent component
+  useEffect(() => {
+    if (onResetRef) {
+      onResetRef.current = resetZoom;
+    }
+  }, [onResetRef]);
+
   if (!startDate || !endDate || Object.keys(data).length === 0) {
     return <Text style={{ padding: 20 }}>Loading graph data...</Text>;
   }
@@ -148,7 +209,7 @@ const filteredData = parsedData.filter(d => d.date); // keep all rows with valid
     return (d - new Date(startDate)) / (new Date(endDate) - new Date(startDate)) * (screenWidth - chartPadding.left - chartPadding.right) + chartPadding.left;
   };
   const yScale = (value) => {
-    return screenHeight - chartPadding.bottom - ((value / (maxYValue + 10)) * (screenHeight - chartPadding.top - chartPadding.bottom));
+    return graphHeight - chartPadding.bottom - ((value / (maxYValue + 10)) * (graphHeight - chartPadding.top - chartPadding.bottom));
   };
   const createAreaPath = (data) => {
     if (!data || data.length === 0) return '';
@@ -193,7 +254,7 @@ const filteredData = parsedData.filter(d => d.date); // keep all rows with valid
     return path;
   };
 
-  const handleTooltipPress = (e) => {
+  const handleTooltipClick = (e) => {
     if (!startDate || !endDate || Object.keys(data).length === 0) return;
   
     const touchX = e.nativeEvent.locationX;
@@ -252,6 +313,9 @@ const filteredData = parsedData.filter(d => d.date); // keep all rows with valid
     setTooltipData({ date: dateStr, values });
     setTooltipPos({ x: pageX, y: pageY });
     
+    // Auto-hide tooltip after 3 seconds
+    setTimeout(() => setTooltipData(null), 3000);
+    
   };
 
   let areaPlotData = [];
@@ -282,20 +346,45 @@ if (startDate && endDate) {
   return (
     <View style={{ flex: 1, backgroundColor: '#f4f4f4' }}>
       {/* Settings Icon (Top Right) */}
-      <View style={{
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        zIndex: 10000,  // high zIndex
-        padding: 10
-      }}>
-        <TouchableOpacity onPress={() => {
-          console.log("Settings icon tapped");
-          setDropdownVisible(true);
+      {(
+        <View style={{
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          zIndex: 10000,  // high zIndex
+          padding: 10
         }}>
-          <Image source={configIcon} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={() => {
+            setDropdownVisible(true);
+          }}>
+            <Image source={configIcon} style={{ width: 25, height: 25, resizeMode: 'contain' }} />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Zoom Reset Button */}
+      {(
+        <View style={{
+          position: 'absolute',
+          top: 10,
+          right: 50,
+          zIndex: 10000,
+          padding: 10
+        }}>
+          <TouchableOpacity 
+            onPress={resetZoom}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              padding: 8,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: '#ccc'
+            }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#333' }}>Reset</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Modal Dropdown */}
       {dropdownVisible && (
@@ -399,88 +488,69 @@ if (startDate && endDate) {
 
         <ScrollView horizontal style={styles.container} contentContainerStyle={styles.contentContainer}>
           {Object.keys(data).length > 0 && (
-            <PinchGestureHandler onGestureEvent={pinchHandler}>
-              <Animated.View style={[{ width: screenWidth, height: screenHeight }, animatedStyle]}>
-                <Svg width={screenWidth} height={screenHeight}   onTouchStart={handleTooltipPress} onTouchEnd={() => { setTimeout(() => setTooltipData(null), 800);}}>
+            <View style={{ width: screenWidth, height: graphHeight }}>
+              {/* Complete Graph with Zoom */}
+              <PanGestureHandler onGestureEvent={panHandler}>
+                <Animated.View>
+                  <PinchGestureHandler onGestureEvent={pinchHandler}>
+                    <Animated.View style={chartAnimatedStyle}>
+                      <Svg width={screenWidth} height={graphHeight} onPress={handleTooltipClick}>
+                        {/* Background Ranges */}
+                        <Rect x={xScale(startDate)} y={yScale(104)} width={xScale(endDate) - xScale(startDate)} height={yScale(35) - yScale(104)} fill="#FFFFE5" />
+                        <Rect x={xScale(startDate)} y={yScale(35)} width={xScale(endDate) - xScale(startDate)} height={yScale(0) - yScale(35)} fill="#E5FFE5" />
+                        <Rect x={xScale(startDate)} y={yScale(300)} width={xScale(endDate) - xScale(startDate)} height={yScale(104) - yScale(300)} fill="#FFE5E5" />
 
-                  {/* Background Ranges */}
-                  <Rect x={xScale(startDate)} y={yScale(104)} width={xScale(endDate) - xScale(startDate)} height={yScale(35) - yScale(104)} fill="#FFFFE5" />
-                  <Rect x={xScale(startDate)} y={yScale(35)} width={xScale(endDate) - xScale(startDate)} height={yScale(0) - yScale(35)} fill="#E5FFE5" />
-                  <Rect x={xScale(startDate)} y={yScale(300)} width={xScale(endDate) - xScale(startDate)} height={yScale(104) - yScale(300)} fill="#FFE5E5" />
+                        {/* Gridlines and Axes */}
+                        {/* X Axis */}
+                        <Line x1={chartPadding.left} y1={graphHeight - chartPadding.bottom} x2={screenWidth - chartPadding.right} y2={graphHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
+                        {/* Y Axis */}
+                        <Line x1={chartPadding.left} y1={chartPadding.top} x2={chartPadding.left} y2={graphHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
 
-                  {/* Gridlines and Axes */}
-                  {/* X Axis */}
-                  <Line x1={chartPadding.left} y1={screenHeight - chartPadding.bottom} x2={screenWidth - chartPadding.right} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
-                  {/* Y Axis */}
-                  <Line x1={chartPadding.left} y1={chartPadding.top} x2={chartPadding.left} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
+                        {/* X Axis Ticks */}
+                        {tickValues.map((tick, index) => (
+                          <G key={`tick-x-${index}`}>
+                            <Line x1={xScale(tick)} y1={chartPadding.top} x2={xScale(tick)} y2={graphHeight - chartPadding.bottom} stroke="#ddd" />
+                            <SvgText x={xScale(tick)} y={graphHeight - chartPadding.bottom + 20} textAnchor="middle" fontSize={10}>{formatDate(tick)}</SvgText>
+                          </G>
+                        ))}
 
-                  {/* X Axis Ticks */}
-                  {tickValues.map((tick, index) => (
-                    <G key={`tick-x-${index}`}>
-                      <Line x1={xScale(tick)} y1={chartPadding.top} x2={xScale(tick)} y2={screenHeight - chartPadding.bottom} stroke="#ddd" />
-                      <SvgText x={xScale(tick)} y={screenHeight - chartPadding.bottom + 20} textAnchor="middle" fontSize={12}>{formatDate(tick)}</SvgText>
-                    </G>
-                  ))}
+                        {/* Y Axis Ticks */}
+                        {Array.from({ length: 6 }, (_, i) => i * (maxYValue / 5)).map((tick, index) => (
+                          <G key={`tick-y-${index}`}>
+                            <Line x1={chartPadding.left} y1={yScale(tick)} x2={screenWidth - chartPadding.right} y2={yScale(tick)} stroke="#ddd" />
+                            <SvgText x={chartPadding.left - 10} y={yScale(tick) + 4} textAnchor="end" fontSize={12}>{tick}</SvgText>
+                          </G>
+                        ))}
 
-                  {/* Y Axis Ticks */}
-                  {Array.from({ length: 6 }, (_, i) => i * (maxYValue / 5)).map((tick, index) => (
-                    <G key={`tick-y-${index}`}>
-                      <Line x1={chartPadding.left} y1={yScale(tick)} x2={screenWidth - chartPadding.right} y2={yScale(tick)} stroke="#ddd" />
-                      <SvgText x={chartPadding.left - 10} y={yScale(tick) + 4} textAnchor="end" fontSize={12}>{tick}</SvgText>
-                    </G>
-                  ))}
+                        {/* Axis Labels */}
+                        <SvgText x={screenWidth / 2} y={graphHeight - 10} textAnchor="middle" fontSize={16} fontWeight="600">Date</SvgText>
+                        <SvgText x={-graphHeight / 2} y={20} textAnchor="middle" fontSize={16} fontWeight="600" rotation={-90}>Count</SvgText>
 
-                  {/* Axis Labels */}
-                  <SvgText x={screenWidth / 2} y={screenHeight - 10} textAnchor="middle" fontSize={16} fontWeight="600">Date</SvgText>
-                  <SvgText x={-screenHeight / 2} y={20} textAnchor="middle" fontSize={16} fontWeight="600" rotation={-90}>Highest Count</SvgText>
+                        {/* Area Plot */}
+                        {areaPlotData?.length > 0 && (
+                          <Path d={createAreaPath(areaPlotData)} fill="#ECD0B7" opacity={0.8} />
+                        )}
 
-                  {/* Area Plot */}
-                  {areaPlotData?.length > 0 && (
-                    <Path d={createAreaPath(areaPlotData)} fill="#ECD0B7" opacity={0.8} />
-                  )}
+                        {/* Plot Lines */}
+                        {Object.keys(data).map((key, index) => {
+                          if (!visiblePlots[key] || !data[key]?.length) return null;
+                          if (['Probality_Space_high', 'Probality_Space_low'].includes(key)) return null;
 
-                  {/* Plot Lines */}
-                  {Object.keys(data).map((key, index) => {
-                    if (!visiblePlots[key] || !data[key]?.length) return null;
-                    if (['Probality_Space_high', 'Probality_Space_low'].includes(key)) return null;
+                          const color = colors[index % colors.length];
+                          return (
+                            <Path key={key} d={createLinePath(data[key])} stroke={color} strokeWidth={2} fill="none" />
+                          );
+                        })}
 
-                    const color = colors[index % colors.length];
-                    return (
-                      <Path key={key} d={createLinePath(data[key])} stroke={color} strokeWidth={2} fill="none" />
-                    );
-                  })}
-
-                  {/* Vertical Today Markers */}
-                  <Line x1={xScale(earlierTodayFormatted)} y1={chartPadding.top} x2={xScale(earlierTodayFormatted)} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
-                  <Line x1={xScale(laterTodayFormatted)} y1={chartPadding.top} x2={xScale(laterTodayFormatted)} y2={screenHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
-                  </Svg>
-                  <Text style={[styles.legendTitle, { marginTop: 8 }]}>Legend (Tap to show/hide):</Text>
-
-                  <View style={styles.bottomLegendContainer}>
-                    {Object.keys(data)
-                      .filter(key => !['Probality_Space_high', 'Probality_Space_low', 'Probality_Space'].includes(key))
-                      .map((key, index) => {
-                        const color = colors[index % colors.length];
-                        const isActive = visiblePlots[key];
-
-                        return (
-                          <TouchableOpacity
-                            key={key}
-                            onPress={() => handlePlotToggle(key)}
-                            style={[
-                              styles.legendPill,
-                              { backgroundColor: isActive ? color : '#ccc' }
-                            ]}
-                          >
-                            <Text style={styles.legendPillText}>{key}</Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                  </View>
-
-
-              </Animated.View>
-            </PinchGestureHandler>
+                        {/* Vertical Today Markers */}
+                        <Line x1={xScale(earlierTodayFormatted)} y1={chartPadding.top} x2={xScale(earlierTodayFormatted)} y2={graphHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
+                        <Line x1={xScale(laterTodayFormatted)} y1={chartPadding.top} x2={xScale(laterTodayFormatted)} y2={graphHeight - chartPadding.bottom} stroke="black" strokeWidth={1} />
+                      </Svg>
+                    </Animated.View>
+                  </PinchGestureHandler>
+                </Animated.View>
+              </PanGestureHandler>
+            </View>
           )}
         </ScrollView>
 
@@ -490,8 +560,8 @@ if (startDate && endDate) {
             pointerEvents="none"
             style={{
               position: 'absolute',
-              top: 10,
-              right: 50,
+              top: isTablet ? 60 : 50,
+              right: isTablet ? 10 : 10,
               backgroundColor: 'white',
               borderColor: '#999',
               borderWidth: 1,
