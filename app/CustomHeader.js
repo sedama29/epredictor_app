@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, Text, TouchableOpacity, Platform } from 'react-native';
+import { SafeAreaView, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 // Custom SVG Hamburger Icon
@@ -16,17 +16,33 @@ const CustomHeader = ({ title, showHeader, onOpenDrawer }) => {
     return null;
   }
 
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height;
+  const isTablet = screenWidth >= 768 || screenHeight >= 1024;
+
   return (
     <SafeAreaView style={{
-      height: Platform.OS === 'ios' ? 100 : 50, 
+      height: Platform.OS === 'ios' ? (isTablet ? 80 : 100) : 50, 
       backgroundColor: 'white',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: Platform.OS === 'ios' ? 70 : 0,
+      paddingTop: Platform.OS === 'ios' ? (isTablet ? 50 : 70) : 0,
     }}>
       <TouchableOpacity
-        onPress={onOpenDrawer}
-        style={{ marginLeft: 10 }}
+        onPress={() => {
+          if (onOpenDrawer) {
+            onOpenDrawer();
+          }
+        }}
+        style={{ 
+          marginLeft: 10,
+          padding: 10,
+          minWidth: 44,
+          minHeight: 44,
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+        activeOpacity={0.7}
       >
         <HamburgerIcon />
       </TouchableOpacity>

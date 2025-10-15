@@ -8,6 +8,7 @@ import GraphView from './Graph/GraphView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Map_L1 from '../assets/map_images/map_L1.png';
 import Map_L2_P1 from '../assets/map_images/map_L2-P1.png';
@@ -136,6 +137,7 @@ const Home = () => {
   const [imageUrl, setImageUrl] = useState();
   const [coordsDictV2, setCoordsDict] = useState({});
   const [contactDetailsV3, setContactDetails] = useState({});
+  const graphResetRef = useRef(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [observedData, setObservedData] = useState([]);
@@ -2086,6 +2088,15 @@ useEffect(() => {
     }
   }, [selectedSite]);
 
+  // Reset graph zoom when navigating back to this screen
+  useFocusEffect(
+    React.useCallback(() => {
+      if (graphResetRef.current) {
+        graphResetRef.current();
+      }
+    }, [])
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
     <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
@@ -2111,7 +2122,7 @@ useEffect(() => {
             style={styles.closeButton} processSiteOptions
             onPress={() => setIsModalVisible(false)}
           >
-            <Text style={{ color: 'white' }}>OK</Text>
+            <Text style={{ color: 'white' }}>Close</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -2182,7 +2193,7 @@ useEffect(() => {
       </SafeAreaView>
 
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Enterococcus Counts</Text>
-      {selectedSite && <GraphView siteId={selectedSite} />}
+      {selectedSite && <GraphView siteId={selectedSite} onResetRef={graphResetRef} />}
 
 
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Data</Text>
@@ -2306,4 +2317,4 @@ useEffect(() => {
   );
 };
 
-export default Home
+export default Home 

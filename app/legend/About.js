@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 
-const APP_VERSION = '0.0.2';
-const RELEASE_DATE = '2025-07';
+const APP_VERSION = '0.2';
+const RELEASE_DATE = '2025-10';
 
 export default function TermsAndConditions({ navigation }) {
 

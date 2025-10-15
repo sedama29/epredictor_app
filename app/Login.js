@@ -46,8 +46,9 @@ export const SignInWithGoogle = async () => {
     await signInWithCredential(auth, credential);
     return true;
   } catch (error) {
-    console.error('❌ Sign-in error:', error.message, error);
-    Alert.alert('Sign-In Failed', error.message || 'An unexpected error occurred.');
+    console.error('❌ Google Sign-In error:', error.message, error);
+    Alert.alert('Google Sign-In Failed', error.message || 'An unexpected error occurred during Google Sign-In.');
     return false;
   }
 };
+

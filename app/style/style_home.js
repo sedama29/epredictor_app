@@ -1,6 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
+
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
+const isTablet = screenWidth >= 768 || screenHeight >= 1024;
 
 export const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#f4f4f4',
+    width: '100%',
+  },
   container: {
     padding: 10,
     width: '100%',

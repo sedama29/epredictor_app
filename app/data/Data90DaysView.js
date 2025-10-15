@@ -93,9 +93,9 @@ const Data90DaysView = ({ siteId }) => {
         <View>
             {/* <Text style={{ fontWeight: 'bold', fontSize: 11 }}>Last 90 days </Text> */}
             <Text style={styles.descriptionText}>
-                For more detailed information and to download the data, visit {' '}
+                For more detailed information and to download the data, visit the web version at {' '}
                 <Text style={styles.linkText} onPress={handleLinkPress}>
-                    https://enterococcus.today/home.php.
+                    https://enterococcus.today.
                 </Text>
             </Text>
             <View style={styles.tableHeader}>
