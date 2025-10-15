@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   View,
-  ActivityIndicator,
-  Platform
+  ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -26,7 +25,7 @@ function LoginPage() {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+  const { height: screenHeight } = Dimensions.get('window');
   const isSmallDevice = screenHeight <= 640;
   const isTablet = screenWidth >= 768 || screenHeight >= 1024;
 
@@ -44,6 +43,20 @@ function LoginPage() {
     return unsubscribe;
   }, [auth, navigation]);
 
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.replace('DrawerNavigator'); // ✅ auto-login
+      } else {
+        setCheckingAuth(false); // show login screen
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
   const handleSignIn = async () => {
     try {
       const signInSuccess = await SignInWithGoogle();
@@ -55,6 +68,13 @@ function LoginPage() {
     }
   };
 
+  if (checkingAuth) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
 
   if (checkingAuth) {
     return (
@@ -113,16 +133,7 @@ function LoginPage() {
         />
       </TouchableOpacity>
 
-      <Text style={[
-        styles.agreementText, 
-        isSmallDevice && { marginTop: 30 },
-        isTablet && { 
-          fontSize: 16, 
-          marginTop: 80, 
-          marginHorizontal: 60,
-          lineHeight: 22
-        }
-      ]}>
+      <Text style={[styles.agreementText, isSmallDevice && { marginTop: 30 }]}>
         I agree to the{' '}
         <Text style={styles.hyperlink} onPress={() => navigation.navigate('Disclaimer')}>
           Terms and Conditions

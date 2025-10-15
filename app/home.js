@@ -1715,28 +1715,21 @@ const map_tree = {
   };
   
 
-
   const handleOpenMap = () => {
     if (selectedSite && coordsDictV2[selectedSite]) {
       const { lat, long } = coordsDictV2[selectedSite];
-  
-      const latitude = parseFloat(lat);
-      const longitude = parseFloat(long);
-  
-      if (!latitude || !longitude) {
-        Alert.alert('Invalid location', 'Missing or invalid coordinates.', [{ text: 'Close' }]);
-        return;
-      }
-  
-      const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-  
+
+      const url = Platform.select({
+        ios: `http://maps.apple.com/?ll=${lat},${long}`, // Apple Maps
+        android: `geo:${lat},${long}?q=${lat},${long}`,   // Native Maps on Android
+      });
+
       Linking.openURL(url).catch((err) => {
-        console.error('❌ Failed to open Google Maps:', err);
-        Alert.alert('Error', 'Unable to open Google Maps.', [{ text: 'Close' }]);
+        console.error('Error opening map:', err);
+        Alert.alert('Error', 'Unable to open the map application.');
       });
     }
   };
-  
 
 
   const findNextMap = (currentKey, x, y) => {
@@ -2105,7 +2098,7 @@ useEffect(() => {
   );
 
   return (
-  <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
     <TouchableOpacity onPress={showDataAlert} style={styles.alertButton}>
       <Text style={styles.alertText}>Alert!</Text>
       <Text style={styles.alertText}>({totalCount})</Text>
@@ -2150,7 +2143,7 @@ useEffect(() => {
                   styles.dropdownContainer,
                   {
                     position: 'absolute',
-                    top: buttonLayout.y + buttonLayout.height + 5,
+                    top: buttonLayout.y + buttonLayout.height + 8,
                     left: buttonLayout.x,
                     width: buttonLayout.width,
                   },

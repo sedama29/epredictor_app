@@ -4,17 +4,8 @@ import { Linking, Alert, View, Text, TouchableOpacity, StyleSheet } from 'react-
 export default function Tglo({ navigation }) {
   useEffect(() => {
     const openTgloLink = async () => {
-      try {
-        const supported = await Linking.canOpenURL('https://www.texasbeachwatch.com/');
-        if (supported) {
-          await Linking.openURL('https://www.texasbeachwatch.com/');
-        } else {
-          Alert.alert('Error', 'Cannot open this URL');
-        }
-      } catch (error) {
-        console.error('Error opening URL:', error);
-        Alert.alert('Error', 'Failed to open the link');
-      }
+      await Linking.openURL('https://www.texasbeachwatch.com/');
+      navigation.goBack();
     };
 
     // Open the URL immediately when component loads

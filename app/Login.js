@@ -1,9 +1,9 @@
 // Login.js
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
-import { auth, database } from './firebaseInit';
+import { auth, database } from './firebaseInit'; // ✅ Use shared instance
 
 GoogleSignin.configure({
   webClientId: '159943127152-k6t7v7u50u9upu0a9f1v9pm0k0os48pr.apps.googleusercontent.com',
