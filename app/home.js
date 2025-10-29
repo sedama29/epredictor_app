@@ -5,6 +5,7 @@ import { styles } from './style/style_home';
 import Data90DaysView from './data/Data90DaysView';
 import ContactDetailsView from './data/ContactDetailsView';
 import GraphView from './Graph/GraphView';
+import HeatMapView from './Graph/HeatMapView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1882,9 +1883,9 @@ const map_tree = {
 
   const fetchData = async () => {
     try {
-      const observed = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/observed.csv');
-      const predicted = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/predicted.csv');
-      const delayed = await fetchCSVData('https://enterococcus.today/waf_2/app/TX/delayed_data.csv');
+      const observed = await fetchCSVData('https://enterococcus.today/waf/app/TX/observed.csv');
+      const predicted = await fetchCSVData('https://enterococcus.today/waf/app/TX/predicted.csv');
+      const delayed = await fetchCSVData('https://enterococcus.today/waf/app/TX/delayed_data.csv');
   
       setObservedData(observed);
       setPredictedData(predicted);
@@ -2082,15 +2083,15 @@ useEffect(() => {
     
     
 
-    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/stations_3.txt', 'siteOptionsV2', setSiteOptions, processSiteOptions);
-    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/beach_lat_lon.txt', 'coordsDictV2', setCoordsDict);
-    checkAndFetchData('https://enterococcus.today/waf_2/app/TX/contact_details_2.json', 'contactDetailsV3', setContactDetails);
+    checkAndFetchData('https://enterococcus.today/waf/app/TX/stations_3.txt', 'siteOptionsV2', setSiteOptions, processSiteOptions);
+    checkAndFetchData('https://enterococcus.today/waf/app/TX/beach_lat_lon.txt', 'coordsDictV2', setCoordsDict);
+    checkAndFetchData('https://enterococcus.today/waf/app/TX/contact_details_2.json', 'contactDetailsV3', setContactDetails);
 
   }, []);
 
   useEffect(() => {
     if (selectedSite) {
-      const imageSrc = `https://enterococcus.today/waf_2/app/TX/beach_images_2/${selectedSite}.jpg`;
+      const imageSrc = `https://enterococcus.today/waf/app/TX/beach_images_2/${selectedSite}.jpg`;
       setImageUrl(imageSrc);
     }
   }, [selectedSite]);
@@ -2202,6 +2203,10 @@ useEffect(() => {
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Enterococcus Counts</Text>
       {selectedSite && <GraphView siteId={selectedSite} onResetRef={graphResetRef} />}
 
+      <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Heat Map</Text>
+      <SafeAreaView style={styles.container_location}>
+        <HeatMapView />
+      </SafeAreaView>
 
       <Text style={{ marginTop: 30, fontSize: 14, fontWeight: 'bold' }}>Data</Text>
       <SafeAreaView>

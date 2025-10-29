@@ -131,7 +131,7 @@ const GraphView = ({ siteId, onResetRef }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`https://enterococcus.today/waf_2/app/TX/eCount_stat_app/${siteId}.csv?ts=${new Date().getTime()}`);
+      const response = await axios.get(`https://enterococcus.today/waf/app/TX/eCount_stat_app/${siteId}.csv?ts=${new Date().getTime()}`);
       const parseDate = d3.timeParse("%Y-%m-%d");
       const parsedData = d3.csvParse(response.data, (row) => {
         const newRow = { date: parseDate(row.date) };

@@ -23,7 +23,7 @@ const Data90DaysView = ({ siteId }) => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`https://enterococcus.today/waf_2/app/TX/data_90_days/${siteId}.csv`);
+            const response = await axios.get(`https://enterococcus.today/waf/app/TX/data_90_days/${siteId}.csv`);
     
             Papa.parse(response.data, {
                 header: true,
