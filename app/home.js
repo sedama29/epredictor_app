@@ -2280,6 +2280,30 @@ useEffect(() => {
           {selectedSite && <ContactDetailsView details={contactDetailsV3[selectedSite]} />}
         </ScrollView>
       </SafeAreaView>
+
+      {/* Instrument Info Section */}
+      <View style={{ marginTop: 30, paddingHorizontal: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', marginRight: 10 }}>Instrument Info</Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#007AFF',
+              paddingVertical: 6,
+              paddingHorizontal: 12,
+              borderRadius: 6,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+            onPress={() => {
+              // Add your add instrument functionality here
+              console.log('Add instrument pressed');
+            }}
+          >
+            <Text style={{ color: 'white', fontSize: 14, fontWeight: '600', marginRight: 4 }}>+</Text>
+            <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>Add Instrument</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <Modal
         animationType="slide"
         transparent={true}
