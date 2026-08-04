@@ -99,7 +99,7 @@ const HeatMapView = () => {
   const [riskFilter, setRiskFilter] = useState('all'); // 'all', 'low', 'medium', 'high', 'nodata'
   const [heatMapData, setHeatMapData] = useState([]);
   const [coordsDict, setCoordsDict] = useState({});
-  const [pulseOpacity, setPulseOpacity] = useState(0.6);
+  const [pulseOpacity, setPulseOpacity] = useState(0.7);
   const [zoomLevel, setZoomLevel] = useState(8); // Initial zoom level estimate
   
   // Initial map region - centered more on Gulf of Mexico bay
@@ -135,10 +135,10 @@ const HeatMapView = () => {
     
     pulseAnimation.start();
     
-    // Update state for pulsing effect - more noticeable blinking (0.6 to 1.0)
+    // Update state for pulsing effect - matching website (1.0 to 0.7)
     const interval = setInterval(() => {
-      setPulseOpacity(prev => prev === 0.6 ? 1.0 : 0.6);
-    }, 1000); // Faster blinking for more noticeable effect
+      setPulseOpacity(prev => prev === 0.7 ? 1.0 : 0.7);
+    }, 1500);
     
     return () => {
       pulseAnimation.stop();
@@ -150,9 +150,7 @@ const HeatMapView = () => {
   const onRegionChangeComplete = (region) => {
     if (region && region.longitudeDelta) {
       const zoom = Math.log2(360 * (screenWidth / 256 / region.longitudeDelta));
-      // Clamp zoom level to reasonable range
-      const clampedZoom = Math.max(5, Math.min(14, zoom));
-      setZoomLevel(clampedZoom);
+      setZoomLevel(zoom);
     }
   };
   
@@ -529,50 +527,47 @@ const HeatMapView = () => {
     return intensity;
   };
   
-  // Get interpolated color from intensity - green -> yellow -> orange -> red (smooth gradient like website)
+  // Get interpolated color from intensity - green -> yellow -> orange -> red (with red focus)
   const getColorFromIntensity = (intensity) => {
     // Clamp intensity to 0-1
     intensity = Math.max(0, Math.min(1, intensity));
     
-    let r, g, b, a;
+    let r, g, b;
     
-    // Smooth color interpolation matching website: green -> yellow -> orange -> red
-    // Proper green range, smooth yellow transition, then orange to red
+    // Extended green range, yellow, orange, red
     if (intensity <= 0.4) {
-      // Green range (0 to 0.4) - Stay green, proper green color
+      // Green to Yellow (0 to 0.4) - Extended green range
       const t = intensity / 0.4;
-      // Use proper green colors - darker green to medium green, staying green
-      // Proper green RGB: #4CAF50 (76, 175, 80) or similar
-      if (t <= 0.7) {
-        // Dark green to proper green - stay in green range
-        const t2 = t / 0.7;
-        r = Math.round(34 + (76 - 34) * t2);      // 34 -> 76 (darker to proper green)
-        g = Math.round(139 + (175 - 139) * t2);    // 139 -> 175 (darker to proper green)
-        b = Math.round(34 + (80 - 34) * t2);       // 34 -> 80 (darker to proper green)
+      // Start with darker green, transition to bright green, then yellow
+      if (t <= 0.5) {
+        // Dark green to bright green
+        const t2 = t * 2;
+        r = Math.round(50 + (76 - 50) * t2);      // 50 -> 76
+        g = Math.round(150 + (175 - 150) * t2);    // 150 -> 175
+        b = Math.round(50 + (80 - 50) * t2);       // 50 -> 80
       } else {
-        // Proper green to slightly yellow-green (but still green)
-        const t2 = (t - 0.7) / 0.3;
-        r = Math.round(76 + (144 - 76) * t2);      // 76 -> 144 (green to yellow-green)
-        g = Math.round(175 + (238 - 175) * t2);    // 175 -> 238 (green to yellow-green)
-        b = Math.round(80 + (144 - 80) * t2);      // 80 -> 144 (green to yellow-green)
+        // Bright green to yellow
+        const t2 = (t - 0.5) * 2;
+        r = Math.round(76 + (255 - 76) * t2);      // 76 -> 255
+        g = Math.round(175 + (255 - 175) * t2);    // 175 -> 255
+        b = Math.round(80 + (0 - 80) * t2);        // 80 -> 0
       }
-      // Opacity based on intensity - 40% more transparent for green (additional 20% reduction)
-      a = 0.005184 + (intensity * 0.0162); // Range: 0.005184 to 0.021384 (40% more transparent green)
     } else if (intensity <= 0.7) {
       // Yellow to Orange (0.4 to 0.7)
       const t = (intensity - 0.4) / 0.3;
       r = 255;                                      // Stay at 255
       g = Math.round(255 + (152 - 255) * t);      // 255 -> 152
       b = 0;                                        // Stay at 0
-      a = 0.0648 + (intensity - 0.4) * 0.05184; // Range: 0.0648 to 0.10368 (40% more transparent yellow/orange)
     } else {
       // Orange to Red (0.7 to 1.0) - TRUE RED for high intensity
       const t = (intensity - 0.7) / 0.3;
       r = 255;                                      // Stay at 255 (bright red)
       g = Math.round(152 + (0 - 152) * t);        // 152 -> 0 (orange to pure red)
       b = 0;                                        // Stay at 0
-      a = 0.0648 + (intensity - 0.7) * 0.03888; // Range: 0.0648 to 0.08424 (40% more transparent red)
     }
+    
+    // Opacity based on intensity - lower for outer layers
+    const a = 0.2 + (intensity * 0.6); // Range: 0.2 to 0.8
     
     return { r, g, b, a };
   };
@@ -608,86 +603,72 @@ const HeatMapView = () => {
     return baseRadius * zoomScale;
   };
   
-  // Prepare all heatmap points with intensity calculation - memoized to prevent excessive recalculations
-  const allCounts = React.useMemo(() => {
-    return heatMapData
-      .filter(item => !item.noData && item.count !== null && item.lat != null && item.long != null)
-      .map(item => item.count);
-  }, [heatMapData]);
+  // Prepare all heatmap points with intensity calculation
+  const allCounts = heatMapData
+    .filter(item => !item.noData && item.count !== null)
+    .map(item => item.count);
   
-  const heatMapPoints = React.useMemo(() => {
-    if (allCounts.length === 0) return [];
-    
-    return heatMapData
-      .filter(item => !item.noData && item.count !== null && item.lat != null && item.long != null)
-      .map(item => {
-        const intensity = calculateIntensity(item.count, allCounts);
-        let color = getColorFromIntensity(intensity);
-        
-        // CRITICAL: Force true red (255, 0, 0) for counts > 104
-        if (item.count > 104) {
-          color = { r: 255, g: 0, b: 0, a: color.a }; // Pure red
-          // Also ensure intensity is at least 0.7 for proper filtering
-          const adjustedIntensity = Math.max(0.7, intensity);
-          return {
-            latitude: item.lat,
-            longitude: item.long,
-            intensity: adjustedIntensity,
-            count: item.count,
-            color: color,
-            item: item
-          };
-        }
-        
+  const heatMapPoints = heatMapData
+    .filter(item => !item.noData && item.count !== null)
+    .map(item => {
+      const intensity = calculateIntensity(item.count, allCounts);
+      let color = getColorFromIntensity(intensity);
+      
+      // CRITICAL: Force true red (255, 0, 0) for counts > 104
+      if (item.count > 104) {
+        color = { r: 255, g: 0, b: 0, a: color.a }; // Pure red
+        // Also ensure intensity is at least 0.7 for proper filtering
+        const adjustedIntensity = Math.max(0.7, intensity);
         return {
-          latitude: item.lat, // Circles use original coordinates
+          latitude: item.lat,
           longitude: item.long,
-          intensity: intensity,
+          intensity: adjustedIntensity,
           count: item.count,
           color: color,
           item: item
         };
-      });
-  }, [heatMapData, allCounts]);
+      }
+      
+      return {
+        latitude: item.lat, // Circles use original coordinates
+        longitude: item.long,
+        intensity: intensity,
+        count: item.count,
+        color: color,
+        item: item
+      };
+    });
   
   // Extreme points for pulsing layer (intensity > 0.85)
-  const extremePoints = React.useMemo(() => {
-    return heatMapPoints.filter(p => p.intensity > 0.85);
-  }, [heatMapPoints]);
+  const extremePoints = heatMapPoints.filter(p => p.intensity > 0.85);
   
   // For iOS: Keep simple grouping by risk level
-  const lowRiskPoints = React.useMemo(() => {
-    return heatMapData
-      .filter(item => !item.noData && item.count !== null && item.count < 35 && item.lat != null && item.long != null)
-      .map(item => ({
-        latitude: item.lat,
-        longitude: item.long,
-        weight: calculateIntensity(item.count, allCounts),
-        item: item
-      }));
-  }, [heatMapData, allCounts]);
+  const lowRiskPoints = heatMapData
+    .filter(item => !item.noData && item.count !== null && item.count < 35)
+    .map(item => ({
+      latitude: item.lat,
+      longitude: item.long,
+      weight: calculateIntensity(item.count, allCounts),
+      item: item
+    }));
     
-  const mediumRiskPoints = React.useMemo(() => {
-    return heatMapData
-      .filter(item => !item.noData && item.count !== null && item.count >= 35 && item.count < 104 && item.lat != null && item.long != null)
-      .map(item => ({
-        latitude: item.lat,
-        longitude: item.long,
-        weight: calculateIntensity(item.count, allCounts),
-        item: item
-      }));
-  }, [heatMapData, allCounts]);
+  const mediumRiskPoints = heatMapData
+    .filter(item => !item.noData && item.count !== null && item.count >= 35 && item.count < 104)
+    .map(item => ({
+      latitude: item.lat,
+      longitude: item.long,
+      weight: calculateIntensity(item.count, allCounts),
+      item: item
+    }));
     
-  const highRiskPoints = React.useMemo(() => {
-    return heatMapData
-      .filter(item => !item.noData && item.count !== null && item.count >= 104 && item.lat != null && item.long != null)
-      .map(item => ({
-        latitude: item.lat,
-        longitude: item.long,
-        weight: calculateIntensity(item.count, allCounts),
-        item: item
-      }));
-  }, [heatMapData, allCounts]);
+  const highRiskPoints = heatMapData
+    .filter(item => !item.noData && item.count !== null && item.count >= 104)
+    .map(item => ({
+      latitude: item.lat,
+      longitude: item.long,
+      weight: calculateIntensity(item.count, allCounts),
+      item: item
+    }));
   
 
   const formatDate = (dateStr) => {
@@ -788,201 +769,204 @@ const HeatMapView = () => {
         showsUserLocation={false}
         toolbarEnabled={false}
       >
-        {/* Android: Heatmap with intensity-based interpolated colors - smooth continuous gradient like website */}
+        {/* Android: Heatmap with intensity-based interpolated colors - red on top */}
         {Platform.OS === 'android' && (
           <>
             {/* Detect if zoomed out completely - create unified appearance */}
             {(() => {
-              // Use a more lenient threshold to ensure circles are visible
-              const isZoomedOut = zoomLevel < 7; // Adjusted to show circles at initial zoom
-              
-              // Separate points by intensity: green, orange/yellow, and red
-              // Note: extremePoints (intensity > 0.85) are handled separately, so exclude them from highIntensityPoints
-              const greenPoints = heatMapPoints.filter(point => point.intensity < 0.4);
-              const orangeYellowPoints = heatMapPoints.filter(point => point.intensity >= 0.4 && point.intensity < 0.7);
-              const highIntensityPoints = heatMapPoints.filter(point => (point.intensity >= 0.7 && point.intensity <= 0.85) || (point.count > 104 && point.intensity <= 0.85));
-              
-              // Increased limits to ensure coverage across entire map
-              const maxGreenPoints = isZoomedOut ? 25 : 30; // Increased to show more green circles
-              const maxOrangePoints = isZoomedOut ? 10 : 15;
-              const maxHighPoints = isZoomedOut ? 8 : 12;
-              const maxExtremePoints = 5;
-              
-              // Sample points if too many - use all points to ensure coverage across entire map
-              // Don't filter by count to ensure top/bottom areas are visible
-              const sampledGreenPoints = greenPoints.length > maxGreenPoints
-                ? greenPoints.slice(0, maxGreenPoints) // Take first N points (no sorting) to ensure geographic distribution
-                : greenPoints;
-              
-              const sampledOrangePoints = orangeYellowPoints.length > maxOrangePoints
-                ? [...orangeYellowPoints.sort((a, b) => (b.count || 0) - (a.count || 0)).slice(0, maxOrangePoints)]
-                : orangeYellowPoints;
-              
-              const sampledHighPoints = highIntensityPoints.length > maxHighPoints
-                ? highIntensityPoints.slice(0, maxHighPoints)
-                : highIntensityPoints;
+              const isZoomedOut = zoomLevel < 6; // Fully zoomed out
               
               return (
                 <>
-                  {/* Render green points first (lowest intensity) - single circle with blinking */}
-                  {sampledGreenPoints.map((point, i) => {
-                    const densityFactor = getScreenDensity();
-                    
-                    let baseRadius, zoomFactor;
-                    
-                    // Ensure circles are visible at all zoom levels
-                    if (isZoomedOut) {
-                      baseRadius = 40000 * densityFactor;
-                      zoomFactor = 1.0;
-                    } else {
-                      // Use larger base radius for better visibility when zoomed in
-                      zoomFactor = Math.max(1.0, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 35000 * densityFactor; // Increased from 30000 for better visibility
-                    }
-                    
-                    const radius = baseRadius * zoomFactor;
-                    const { r, g, b } = point.color;
-                    const baseOpacity = point.color.a * 3.0;
-                    // Increased opacity for better visibility
-                    const opacity = Math.max(0.2, Math.min(0.5, baseOpacity * pulseOpacity * 0.8)); // Increased for better visibility
-                    
-                    return (
-                      <Circle
-                        key={`heat-green-${i}`}
-                        center={{ latitude: point.latitude, longitude: point.longitude }}
-                        radius={radius}
-                        strokeWidth={0}
-                        fillColor={`rgba(${r},${g},${b},${opacity})`}
-                      />
-                    );
-                  })}
+                  {/* Render green/yellow/orange points first (lower intensity) - smooth blended heat map */}
+                  {heatMapPoints
+                    .filter(point => point.intensity < 0.7) // Green, yellow, orange only
+                    .map((point, i) => {
+                      const densityFactor = getScreenDensity();
+                      
+                      // When zoomed out: much larger radius for unified appearance
+                      // When zoomed in: normal radius
+                      let baseRadius, zoomFactor, numLayers;
+                      
+                      if (isZoomedOut) {
+                        // Zoomed out: create large unified blended area
+                        baseRadius = 120000 * densityFactor; // Much larger for extensive overlap
+                        zoomFactor = 1.0; // No additional zoom scaling when fully zoomed out
+                        numLayers = 40; // Many more layers for smooth blending
+                      } else {
+                        // Normal zoom: standard behavior with more layers
+                        zoomFactor = Math.max(1.5, Math.min(3.5, (14 - zoomLevel) / 2));
+                        baseRadius = 30000 * densityFactor; // Larger base for better overlap
+                        numLayers = 35; // More layers for smoother blending
+                      }
+                      
+                      // Clamp layers on Android to avoid too many drawable objects
+                      numLayers = Math.min(numLayers, 24);
+                      
+                      const maxRadius = baseRadius * zoomFactor;
+                      const layers = [];
+                      const { r, g, b } = point.color;
+                      
+                      // base z-index for low intensity circles (render behind red)
+                      const baseZ = 10;
+                      
+                      for (let layer = 0; layer < numLayers; layer++) {
+                        const normalizedLayer = layer / numLayers;
+                        // Smooth radius fade - more gradual for better blending
+                        const layerRadiusRatio = isZoomedOut 
+                          ? 1 - (normalizedLayer * 0.98) // Very wide fade when zoomed out
+                          : 1 - (normalizedLayer * 0.85); // Wide fade for blending
+                        const layerRadius = maxRadius * layerRadiusRatio;
+                        
+                        // Smooth opacity gradient - starts very transparent, gradually increases
+                        // Use exponential fade for smoother blending
+                        const fadePower = 1.8; // Smoother fade curve
+                        const outerLayerFade = Math.pow(1 - normalizedLayer, fadePower);
+                        
+                        // Lower opacity values for better blending (like website heat map)
+                        const minOpacity = 0.08; // Very transparent at edges
+                        const maxOpacity = isZoomedOut ? 0.25 : 0.3; // Still relatively transparent
+                        const baseOpacity = minOpacity + (maxOpacity - minOpacity) * (1 - normalizedLayer);
+                        
+                        // Combine with intensity-based opacity
+                        const intensityOpacity = point.color.a * outerLayerFade;
+                        const layerOpacity = Math.max(baseOpacity, intensityOpacity * 0.6);
+                        
+                        const pulsedOpacity = layerOpacity * pulseOpacity;
+                        // Keep opacity low for smooth blending
+                        const adjustedOpacity = isZoomedOut
+                          ? Math.max(0.08, Math.min(0.3, pulsedOpacity)) // Very transparent for blending
+                          : Math.max(0.1, Math.min(0.35, pulsedOpacity)); // Transparent for smooth blending
+                        
+                        layers.push(
+                          <Circle
+                            key={`heat-low-${i}-layer-${layer}`}
+                            center={{ latitude: point.latitude, longitude: point.longitude }}
+                            radius={layerRadius}
+                            strokeWidth={0}
+                            fillColor={`rgba(${r},${g},${b},${adjustedOpacity})`}
+                            zIndex={baseZ + layer} // Ensure draw order on Android (lower zIndex)
+                          />
+                        );
+                      }
+                      return <React.Fragment key={`heat-low-frag-${i}`}>{layers}</React.Fragment>;
+                    })}
                   
-                  {/* Render green halos around orange points FIRST (behind) - increased halo effect */}
-                  {sampledOrangePoints.map((point, i) => {
-                    const densityFactor = getScreenDensity();
-                    
-                    let baseRadius, zoomFactor;
-                    
-                    if (isZoomedOut) {
-                      baseRadius = 25000 * densityFactor; // Match orange circle base for proper halo sizing
-                      zoomFactor = 1.0;
-                    } else {
-                      zoomFactor = Math.max(1.3, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 20000 * densityFactor; // Match orange circle base for proper halo sizing
-                    }
-                    
-                    const radius = baseRadius * zoomFactor;
-                    
-                    // Green halo around orange points - increased size and opacity for more prominent effect
-                    return (
-                      <Circle
-                        key={`heat-orange-green-halo-${i}`}
-                        center={{ latitude: point.latitude, longitude: point.longitude }}
-                        radius={radius * 1.8} // Increased from 1.4 to 1.8 for larger halo
-                        strokeWidth={0}
-                        fillColor={`rgba(76,175,80,${0.18 * pulseOpacity * 0.9})`} // Increased opacity from 0.12 to 0.18 for more visible halo
-                      />
-                    );
-                  })}
+                  {/* Render subtle green halos around red/orange points FIRST (behind) - for smooth blending */}
+                  {heatMapPoints
+                    .filter(point => point.intensity >= 0.7 || point.count > 104) // Red/orange only - ensure count > 104 always included
+                    .map((point, i) => {
+                      const densityFactor = getScreenDensity();
+                      let baseRadius, zoomFactor;
+                      
+                      if (isZoomedOut) {
+                        baseRadius = 120000 * densityFactor;
+                        zoomFactor = 1.0;
+                      } else {
+                        zoomFactor = Math.max(1.5, Math.min(3.5, (14 - zoomLevel) / 2));
+                        baseRadius = 30000 * densityFactor;
+                      }
+                      
+                      const maxRadius = baseRadius * zoomFactor;
+                      
+                      // Subtle green circle around red/orange (halo effect) - very transparent for smooth blending
+                      return (
+                        <Circle
+                          key={`heat-red-green-halo-${i}`}
+                          center={{ latitude: point.latitude, longitude: point.longitude }}
+                          radius={maxRadius * 1.3} // Green halo is 30% larger
+                          strokeWidth={0}
+                          fillColor={`rgba(76,175,80,${0.12 * pulseOpacity})`} // Very transparent green for smooth blending
+                          zIndex={30} // render behind red layers but above very low intensity layers
+                        />
+                      );
+                    })}
                   
-                  {/* Render orange/yellow points on top - single circle with blinking */}
-                  {sampledOrangePoints.map((point, i) => {
-                    const densityFactor = getScreenDensity();
-                    
-                    let baseRadius, zoomFactor;
-                    
-                    if (isZoomedOut) {
-                      baseRadius = 25000 * densityFactor * 0.85; // Reduced by 15%
-                      zoomFactor = 1.0;
-                    } else {
-                      zoomFactor = Math.max(1.3, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 20000 * densityFactor * 0.85; // Reduced by 15%
-                    }
-                    
-                    const radius = baseRadius * zoomFactor;
-                    const { r, g, b } = point.color;
-                    const baseOpacity = point.color.a * 2.0;
-                    const opacity = Math.max(0.25, Math.min(0.6, baseOpacity * pulseOpacity * 1.0)); // Increased opacity for better visibility
-                    
-                    return (
-                      <Circle
-                        key={`heat-orange-${i}`}
-                        center={{ latitude: point.latitude, longitude: point.longitude }}
-                        radius={radius}
-                        strokeWidth={0}
-                        fillColor={`rgba(${r},${g},${b},${opacity})`}
-                      />
-                    );
-                  })}
+                  {/* Render red points LAST (on top) - smooth blended heat map */}
+                  {heatMapPoints
+                    .filter(point => point.intensity >= 0.7 || point.count > 104) // Red/orange only - ensure count > 104 always included
+                    .map((point, i) => {
+                      const densityFactor = getScreenDensity();
+                      
+                      // When zoomed out: create large unified red blended area
+                      // When zoomed in: normal radius with smooth blending
+                      let baseRadius, zoomFactor, numLayers;
+                      
+                      if (isZoomedOut) {
+                        // Zoomed out: much larger radius to form unified blended red area
+                        baseRadius = 120000 * densityFactor; // Large for extensive overlap
+                        zoomFactor = 1.0; // No additional zoom scaling
+                        numLayers = 40; // Many layers for smooth blending
+                      } else {
+                        // Normal zoom: smooth blended circles
+                        zoomFactor = Math.max(1.5, Math.min(3.5, (14 - zoomLevel) / 2));
+                        baseRadius = 30000 * densityFactor; // Larger for better overlap
+                        numLayers = 35; // More layers for smoother blending
+                      }
+                      
+                      // Clamp layers on Android to avoid excessive draw calls
+                      numLayers = Math.min(numLayers, 24);
+                      
+                      const maxRadius = baseRadius * zoomFactor;
+                      const layers = [];
+                      const { r, g, b } = point.color;
+                      
+                      // base z-index for red region (render above low intensity)
+                      const baseZ = 100;
+                      
+                      for (let layer = 0; layer < numLayers; layer++) {
+                        const normalizedLayer = layer / numLayers;
+                        // Smooth radius fade - gradual for better blending
+                        const layerRadiusRatio = isZoomedOut
+                          ? 1 - (normalizedLayer * 0.98) // Very wide fade when zoomed out
+                          : 1 - (normalizedLayer * 0.85); // Wide fade for smooth blending
+                        const layerRadius = maxRadius * layerRadiusRatio;
+                        
+                        // Smooth opacity gradient - red should be more visible but still blend
+                        const fadePower = 1.6; // Smooth fade curve
+                        const outerLayerFade = Math.pow(1 - normalizedLayer, fadePower);
+                        
+                        // Red needs higher opacity than green but still blends smoothly
+                        const minOpacity = 0.15; // More visible at edges than green
+                        const maxOpacity = isZoomedOut ? 0.45 : 0.55; // More visible but still blends
+                        const baseOpacity = minOpacity + (maxOpacity - minOpacity) * (1 - normalizedLayer);
+                        
+                        // Combine with intensity-based opacity
+                        const intensityOpacity = point.color.a * outerLayerFade;
+                        const layerOpacity = Math.max(baseOpacity, intensityOpacity * 0.8);
+                        
+                        const pulsedOpacity = layerOpacity * pulseOpacity;
+                        // Red should be more visible but still blend smoothly
+                        const adjustedOpacity = isZoomedOut
+                          ? Math.max(0.15, Math.min(0.5, pulsedOpacity)) // More visible but still blends
+                          : Math.max(0.2, Math.min(0.6, pulsedOpacity)); // More visible for red, smooth blending
+                        
+                        layers.push(
+                          <Circle
+                            key={`heat-red-${i}-layer-${layer}`}
+                            center={{ latitude: point.latitude, longitude: point.longitude }}
+                            radius={layerRadius}
+                            strokeWidth={0}
+                            fillColor={`rgba(${r},${g},${b},${adjustedOpacity})`}
+                            zIndex={baseZ + layer} // ensure red layers draw above low intensity circles
+                          />
+                        );
+                      }
+                      return <React.Fragment key={`heat-red-frag-${i}`}>{layers}</React.Fragment>;
+                    })}
                   
-                  {/* Render green halos around red points FIRST (behind) */}
-                  {sampledHighPoints.slice(0, maxHighPoints).map((point, i) => {
+                  {/* Pulsing layer for high-intensity points (intensity > 0.85) - smooth blended */}
+                  {extremePoints.map((point, i) => {
                     const densityFactor = getScreenDensity();
                     
+                    // When zoomed out: larger pulsing circles
                     let baseRadius, zoomFactor;
                     if (isZoomedOut) {
-                      baseRadius = 18000 * densityFactor; // Reduced size (was 27000)
+                      baseRadius = 60000 * densityFactor; // Larger when zoomed out for blending
                       zoomFactor = 1.0;
                     } else {
-                      zoomFactor = Math.max(1.3, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 14000 * densityFactor; // Reduced size (was 21000)
-                    }
-                    
-                    const radius = baseRadius * zoomFactor;
-                    
-                    // Green halo around red points with blinking
-                    return (
-                      <Circle
-                        key={`heat-red-green-halo-${i}`}
-                        center={{ latitude: point.latitude, longitude: point.longitude }}
-                        radius={radius * 1.4}
-                        strokeWidth={0}
-                        fillColor={`rgba(76,175,80,${0.15 * pulseOpacity * 0.9})`} // Blinking green halo + 10% more transparent (increased for better blending)
-                      />
-                    );
-                  })}
-                  
-                  {/* Render red points LAST (on top) - single circle with blinking */}
-                  {sampledHighPoints.slice(0, maxHighPoints).map((point, i) => {
-                    const densityFactor = getScreenDensity();
-                    
-                    let baseRadius, zoomFactor;
-                    
-                    if (isZoomedOut) {
-                      baseRadius = 20000 * densityFactor;
-                      zoomFactor = 1.0;
-                    } else {
-                      zoomFactor = Math.max(1.3, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 16000 * densityFactor;
-                    }
-                    
-                    const radius = baseRadius * zoomFactor;
-                    const { r, g, b } = point.color;
-                    const baseOpacity = point.color.a * 2.4;
-                    const opacity = Math.max(0.3, Math.min(0.65, baseOpacity * pulseOpacity * 1.0)); // Increased opacity for better visibility
-                    
-                    return (
-                      <Circle
-                        key={`heat-red-${i}`}
-                        center={{ latitude: point.latitude, longitude: point.longitude }}
-                        radius={radius}
-                        strokeWidth={0}
-                        fillColor={`rgba(${r},${g},${b},${opacity})`}
-                      />
-                    );
-                  })}
-                  
-                  {/* Pulsing layer for high-intensity points (intensity > 0.85) - reduced size with blinking */}
-                  {extremePoints.slice(0, maxExtremePoints).map((point, i) => {
-                    const densityFactor = getScreenDensity();
-                    
-                    let baseRadius, zoomFactor;
-                    if (isZoomedOut) {
-                      baseRadius = 15000 * densityFactor; // Reduced size (was 24000)
-                      zoomFactor = 1.0;
-                    } else {
-                      zoomFactor = Math.max(1.3, Math.min(2.0, (14 - zoomLevel) / 2.8));
-                      baseRadius = 12000 * densityFactor; // Reduced size (was 18000)
+                      zoomFactor = Math.max(1.5, Math.min(3.5, (14 - zoomLevel) / 2));
+                      baseRadius = 15000 * densityFactor; // Larger for better blending
                     }
                     
                     const radius = baseRadius * zoomFactor;
@@ -990,21 +974,23 @@ const HeatMapView = () => {
                     
                     return (
                       <React.Fragment key={`extreme-pulse-frag-${i}`}>
-                        {/* Green halo around extreme points with blinking */}
+                        {/* Subtle green circle around red for smooth blending */}
                         <Circle
                           key={`extreme-green-halo-${i}`}
                           center={{ latitude: point.latitude, longitude: point.longitude }}
-                          radius={radius * (isZoomedOut ? 1.6 : 1.4)}
+                          radius={radius * (isZoomedOut ? 1.8 : 1.4)}
                           strokeWidth={0}
-                          fillColor={`rgba(76,175,80,${0.12 * pulseOpacity * 0.9})`} // Blinking green halo + 10% more transparent
+                          fillColor={`rgba(76,175,80,${0.15 * pulseOpacity})`} // Very transparent for blending
+                          zIndex={210}
                         />
-                        {/* Red pulsing center with blinking - increased opacity */}
+                        {/* Red pulsing center - blends smoothly */}
                         <Circle
                           key={`extreme-pulse-${i}`}
                           center={{ latitude: point.latitude, longitude: point.longitude }}
                           radius={radius}
                           strokeWidth={0}
-                          fillColor={`rgba(${r},${g},${b},${Math.max(0.35, Math.min(0.7, point.intensity * pulseOpacity * 1.5))})`} // Increased opacity for better visibility
+                          fillColor={`rgba(${r},${g},${b},${point.intensity * pulseOpacity * (isZoomedOut ? 0.5 : 0.6)})`} // Blends smoothly
+                          zIndex={220}
                         />
                       </React.Fragment>
                     );
@@ -1061,9 +1047,7 @@ const HeatMapView = () => {
         )}
           
           {/* Interactive Markers with Popups - visible on both iOS and Android */}
-          {heatMapData
-            .filter(item => item.lat != null && item.long != null) // Filter out invalid coordinates
-            .map((item, index) => {
+          {heatMapData.map((item, index) => {
             // Handle "no data" stations differently
             const isNoData = item.noData || item.count === null;
             // Use visible pixel sizes that maintain size regardless of zoom
@@ -1077,22 +1061,22 @@ const HeatMapView = () => {
                 key={`marker-${item.siteId}-${index}`}
                 ref={(ref) => { markerRefs.current[item.siteId] = ref; }}
                 coordinate={{
-                  latitude: item.lat, // Exact same as circle center
+                  latitude: item.lat + (Platform.OS === 'android' ? MARKER_OFFSET_LAT : 0), // apply android offset if needed
                   longitude: item.long // Exact same as circle center
                 }}
-                anchor={{ x: 0.15, y: 0.15 }}
+                anchor={{ x: 0.5, y: 0.5 }} // center marker anchor for consistent alignment
                 tracksViewChanges={false}
                 onPress={() => handleMarkerPress(item)}
               >
-                {/* Custom circular marker - centered with proper alignment, white border like website */}
+                {/* Custom circular marker - centered with proper alignment */}
                 <View style={{
                   width: markerRadius * 2,
                   height: markerRadius * 2,
                   borderRadius: markerRadius,
                   backgroundColor: markerColor,
-                  borderWidth: 1.5, // White border like website
+                  borderWidth: 0.5, // Reduced from 2 to 0.5 for less prominence
                   borderColor: '#ffffff',
-                  opacity: 0.95,
+                  opacity: 0.9,
                   alignSelf: 'center',
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 1 },
