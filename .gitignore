@@ -73,3 +73,8 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# local android build helpers
+android/build-out.txt
+android/run-install-debug.bat
+
